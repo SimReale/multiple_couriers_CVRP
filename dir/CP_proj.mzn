@@ -15,8 +15,11 @@ int: max_load = max(l);
 
 %%%%%%%%%% VARIABLES %%%%%%%%%%%%
 
+% path
 array[1..m, 1..n+1] of var 1..n+1: x;
+% distance traveled
 array[1..m] of var 0..max_dist: y;
+% load carried
 array[1..m] of var 0..max_load: load;
 
 
@@ -25,7 +28,7 @@ array[1..m] of var 0..max_load: load;
 
 % the load carried by each courier must be lower than the maximum load given in input
 constraint forall(i in 1..m)(
-	load[i] == sum([(if x[i,j] != j then s[j] else 0 endif) | j in 1..n]) /\
+	load[i] = sum([(if x[i,j] != j then s[j] else 0 endif) | j in 1..n]) /\
 	load[i] <= l[i]
 	);
 
@@ -37,7 +40,7 @@ constraint forall(i in 1..m)(
 
 % total path
 constraint forall(i in 1..m)(
-	y[i] == sum([(if x[i,j] != j then distances[j,x[i,j]] else 0 endif) | j in 1..n+1])
+	y[i] = sum([(if x[i,j] != j then distances[j,x[i,j]] else 0 endif) | j in 1..n+1])
 	);
 	
 % resources, one per column
@@ -48,6 +51,23 @@ constraint forall(j in 1..n)(
 % path construction
 constraint forall(i in 1..m)(
 	subcircuit([x[i,j] | j in 1..n+1])
+	);
+
+% redundant
+constraint forall(i in 1..m)(
+	alldifferent([x[i,j] | j in 1..n+1])
+	);
+
+
+
+
+%%%%%%%%%% SYMMETRY BRAKING CONSTRAINTS %%%%%%%%%%%%
+%constraint forall(i,j in 1..m where i!=j)(
+%	if l[i] == l[j] then load[i] <= load[j] endif
+%	);
+
+constraint forall(i in 1..m)(
+	load[i] > 0
 	);
 
 solve minimize max(y);
