@@ -46,35 +46,27 @@ def parse_dat(text):
         "distances": distances
     }
 
+def main():
+    names = ["m", "n", "l", "s", "distances"]
+    new_dir = "./dir"
+    if not os.path.exists(new_dir):
+        os.makedirs(new_dir)
+    for i in range(1, 22):
+        if i < 10:
+            j = "0"+str(i)
+        else: 
+            j = str(i)
+        file_name = 'inst'+j
+        if i != 1:
+            os.chdir('../data')
+        else:
+            os.chdir('./data')
+        with open(file_name+'.dat', "r") as instance:
+            new_file = parse_dat(instance.read())
+            instance = to_mzn(new_file)
 
-names = ["m", "n", "l", "s", "distances"]
-new_dir = "./dir"
-if not os.path.exists(new_dir):
-    os.makedirs(new_dir)
-for i in range(1, 22):
-    if i < 10:
-        j = "0"+str(i)
-    else: 
-        j = str(i)
-    file_name = 'inst'+j
-    if i != 1:
-        os.chdir('../data')
-    else:
-        os.chdir('./data')
-    with open(file_name+'.dat', "r") as instance:
-        new_file = parse_dat(instance.read())
-        instance = to_mzn(new_file)
-
-    os.chdir('../'+new_dir)
-    with open(file_name+".dzn", "w") as f:
-        f.write(instance)
-
-'''from minizinc import Instance, Model, Solver
-
-# Load the model from file
-nqueens = Model("./nameofthemodel.mzn")
-# Find the MiniZinc solver configuration for Gecode
-gecode = Solver.lookup("gecode")
-#Instance of the model for Gecode
-instance = takeaninstance
-result = instance.solve()'''
+        os.chdir('../'+new_dir)
+        with open(file_name+".dzn", "w") as f:
+            f.write(instance)
+if __name__ == "__main__":
+    main()
