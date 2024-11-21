@@ -4,13 +4,13 @@ from datetime import timedelta
 import time
 
 #created the results directory
-print('ok1')
+
 current_dir = os.getcwd()
 parent_dir = os.path.dirname(current_dir)
 new_directory = 'results/CP'
 if not(os.path.isdir(new_directory)):
     os.makedirs(new_directory)
-print('ok2')
+
 os.chdir('src')
 directory = 'CP/data'
 
@@ -19,7 +19,7 @@ instances = os.listdir(directory)
 instances.sort()
 # Print the elements
 for el in instances[:10]:
-    print('ok3')
+    
     #TODO create more solver, one for each approach...
     
     model_name = "gecode"
@@ -45,12 +45,12 @@ for el in instances[:10]:
         while path_matrix[r][courier_path[-1]-1] != len(path_matrix[r]):
             courier_path.append(path_matrix[r][courier_path[-1]-1])
         result_path.append(courier_path)
-
+    
     result = {
         "gecode" : 
         {
             "time" : end_time,
-            "optimal" : end_time < 300,
+            "optimal" : result.status == result.status.OPTIMAL_SOLUTION and end_time < 300,
             "obj" : result.objective,
             "sol" : result_path
         }
