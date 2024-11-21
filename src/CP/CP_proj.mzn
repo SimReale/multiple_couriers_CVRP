@@ -1,4 +1,5 @@
 include "globals.mzn";
+include "gecode.mzn";
 
 %%%%%%%%% PARAMETERS %%%%%%%%%%%
 
@@ -19,6 +20,7 @@ int: max_load = max(l);
 array[1..m, 1..n+1] of var 1..n+1: x;
 % distance traveled
 array[1..m] of var 0..max_dist: y;
+var int: max_distance = max(y);
 % load carried
 array[1..m] of var 0..max_load: load;
 
@@ -60,14 +62,26 @@ constraint forall(i in 1..m)(
 
 
 
+%%%%%%%%%% SYMMETRY BREAKING CONSTRAINTS %%%%%%%%%%%%
 
-%%%%%%%%%% SYMMETRY BRAKING CONSTRAINTS %%%%%%%%%%%%
-%constraint forall(i,j in 1..m where i!=j)(
-%	if l[i] == l[j] then load[i] <= load[j] endif
+%constraint forall(i in 1..m, j in i+1..m)(
+%	max([load[i], load[j]]) <= min([l[i], l[j]])
+%	);
+
+%constraint forall(i in 1..m, j in i+1..m)(
+%	if l[i] == l[j] then decreasing([load[i], load[j]]) endif
 %	);
 
 constraint forall(i in 1..m)(
 	load[i] > 0
 	);
 
-solve minimize max(y);
+
+
+
+solve 
+  :: int_search([x[i,j] | i in 1..m, j in 1..n+1], dom_w_deg, indomain_random)
+  :: int_default_search(afc_size_max, indomain_median)
+  :: restart_linear(n)
+  :: relax_and_reconstruct([x[i,j] | i in 1..m, j in 1..n+1], 75)
+minimize max_distance;
