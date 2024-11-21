@@ -7,8 +7,8 @@ RUN apt-get update -y \
     && apt-get install -y python3-pip 
 
 # set a directory for the app
-WORKDIR /src
-
+#WORKDIR /src
+WORKDIR /
 # copy all the files to the container
 COPY . .  
 
