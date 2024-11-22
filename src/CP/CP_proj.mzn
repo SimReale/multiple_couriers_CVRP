@@ -76,12 +76,11 @@ constraint forall(i in 1..m)(
 	load[i] > 0
 	);
 
+%solve 
+%  :: int_search([x[i,j] | i in 1..m, j in 1..n+1], dom_w_deg, indomain_random)
+%  :: int_default_search(afc_size_max, indomain_median)
+%  :: restart_linear(n)
+%  :: relax_and_reconstruct([x[i,j] | i in 1..m, j in 1..n+1], 75)
+%minimize max_distance;
 
-
-
-solve 
-  :: int_search([x[i,j] | i in 1..m, j in 1..n+1], dom_w_deg, indomain_random)
-  :: int_default_search(afc_size_max, indomain_median)
-  :: restart_linear(n)
-  :: relax_and_reconstruct([x[i,j] | i in 1..m, j in 1..n+1], 75)
-minimize max_distance;
+solve minimize max_distance;

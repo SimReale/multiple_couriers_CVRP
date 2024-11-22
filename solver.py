@@ -2,15 +2,15 @@ from minizinc import Instance, Model, Solver
 import json, os
 from datetime import timedelta
 import time
+from src import check_solution
 
-#created the results directory
-print('ok1')
+
 current_dir = os.getcwd()
 parent_dir = os.path.dirname(current_dir)
 new_directory = 'results/CP'
 if not(os.path.isdir(new_directory)):
     os.makedirs(new_directory)
-print('ok2')
+
 os.chdir('src')
 directory = 'CP/data'
 
@@ -18,8 +18,8 @@ directory = 'CP/data'
 instances = os.listdir(directory)
 instances.sort()
 # Print the elements
-for el in instances[:10]:
-    print('ok3')
+for el in instances[:1]:
+
     #TODO create more solver, one for each approach...
     
     model_name = "gecode"
@@ -31,38 +31,41 @@ for el in instances[:10]:
     #print(gecode.version) #i have check the version is 6.3.0
     timelimit = timedelta(minutes=5)
 
-    start = time.time()
+
     result = inst.solve(timeout=timelimit) #timeout needs to be a timedelta (https://python.minizinc.dev/en/latest/api.html#solvers)
-    end_time = time.time() - start
-
-    #round to integer
-    end_time = int(end_time)
-
-    path_matrix = result.solution.__dict__['x']
-    result_path = []
-    for r in range(len(path_matrix)):
-        courier_path = [path_matrix[r][len(path_matrix[r])-1]]
-        while path_matrix[r][courier_path[-1]-1] != len(path_matrix[r]):
-            courier_path.append(path_matrix[r][courier_path[-1]-1])
-        result_path.append(courier_path)
-
-    result = {
-        "gecode" : 
-        {
-            "time" : end_time,
-            "optimal" : end_time < 300,
-            "obj" : result.objective,
-            "sol" : result_path
-        }
-    }
-
-
-    result_json = json.dumps(result, indent=4)
-
-    os.chdir('../results/CP')
-
-    with open(f"{el.removesuffix('.dzn')}.json", "w") as json_file:
-        json.dump(result_json, json_file, indent=4)
-
     
-    os.chdir('../../src')
+    #getting the time to solve in seconds
+    solve_time = result.statistics['solveTime'].seconds
+
+
+    #no solution found -> file json not created
+    if result.status != result.status.UNKNOWN:
+        path_matrix = result.solution.x
+        result_path = []
+        for r in range(len(path_matrix)):
+            courier_path = [path_matrix[r][len(path_matrix[r])-1]]
+            while path_matrix[r][courier_path[-1]-1] != len(path_matrix[r]):
+                courier_path.append(path_matrix[r][courier_path[-1]-1])
+            result_path.append(courier_path)
+
+        result = {
+            "gecode" : 
+            {
+                "time" : solve_time,
+                "optimal" : result.status == result.status.OPTIMAL_SOLUTION and solve_time < 300,
+                "obj" : result.objective,
+                "sol" : result_path
+            }
+        }
+
+        os.chdir('../results/CP')
+
+        with open(f"{el.removesuffix('.dzn')}.json", "w") as json_file:
+            json.dump(result, json_file, indent=4)
+
+        
+        os.chdir('../../src')
+
+
+os.chdir('../')
+check_solution.main(('check_solution', 'src/instances', 'results/'))
