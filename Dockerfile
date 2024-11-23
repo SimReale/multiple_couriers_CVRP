@@ -1,5 +1,5 @@
-# Use Minizinc Docker image version 2.8.3
-FROM minizinc/minizinc:2.8.3 
+# Use Minizinc Docker image version 2.8.4
+FROM minizinc/minizinc:2.8.4
 
 # Install Python and pip for additional script dependencies
 RUN apt-get update -y \

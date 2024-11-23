@@ -42,6 +42,7 @@ def main():
         for i in range(1, m+1):
             solver.add(sum([x[i, j] for j in range(n+1)]) <= l[i])
 
+        
 
 
 
