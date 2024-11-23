@@ -1,5 +1,7 @@
 from z3 import *
 import os
+from utils import * 
+
 
 def main():
     #take the instances
@@ -17,36 +19,53 @@ def main():
         for i in range(n+1):
             row = [int(j) for j in data[4+i].split()]
             distances.append(row)
+        num_couriers = int(data[0])
+        num_items = int(data[1])
 
-        
+
         max_distance = sum([max(row) for row in distances])
         max_load = max(l)
 
         #-----variables
 
         #path
-        x = [ [ Int("x_%s_%s" % (i+1, j+1)) for j in range(n+1) ] 
-        for i in range(m) ]
+        x = [ [ Int(f"x_{i}_{j}") for j in range(n+1) ] for i in range(m) ]
         
         #distance couriers
-        y = [ Int("y_%s" % (i+1)) for i in range(m) ]
-        max_y = max(y)
+        y = [ Int(f"y_{i}") for i in range(m) ]
+        max_y = Int("max_y")
+
+        
         print(max_y)
         #load couriers
-        load = [ Int("l_%s" % (i+1)) for i in range(m) ]
+        load = [ Int(f"l_{i}") for i in range(m) ]
 
         #-----contraints
 
         solver = Optimize()
 
-        for i in range(1, m+1):
-            solver.add(sum([x[i, j] for j in range(n+1)]) <= l[i])
+        for i in range(m):
+            # load constraint 
+            solver.add(sum([x[i][j] for j in range(n+1)]) <= l[i])
+            # each courier leave the depot 
+            solver.add(load[i] > 0)
+            # the load carried by each courier must be lower than the maximum load given in input
+            solver.add(And(load[i] == sum([If(x[i][j] != j, s[j],0) for j in range(n)]),load[i] <= l[i]))
 
-        
+            # total path cost 
+            # solver.add(y[i] == sum([If(x[i][j] != j, get_item(distances[j],[x[i][j]]),0) for j in range(n+1)]))
+
+            # subcircuit
+            solver.add(subcircuit(x[i], i))
+
+                
+        # resources, one per column 
+        for j in range(n):
+            solver.add(sum([If(x[i][j] == j, 1, 0) for i in range(m)]) == m - 1)
 
 
-
-
+        solver.add([max_y >= y[i] for i in range(m)])
+        solver.minimize(max_y)
 
 
 
