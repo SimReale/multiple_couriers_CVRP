@@ -1,7 +1,7 @@
 from z3 import *
 import os
 from utils import * 
-
+import numpy as np
 
 def main():
     #take the instances
@@ -19,11 +19,8 @@ def main():
         for i in range(n+1):
             row = [int(j) for j in data[4+i].split()]
             distances.append(row)
-        num_couriers = int(data[0])
-        num_items = int(data[1])
 
-
-        max_distance = sum([max(row) for row in distances])
+        #max_distance = sum([max(row) for row in distances])
         max_load = max(l)
 
         #-----variables
@@ -35,8 +32,6 @@ def main():
         y = [ Int(f"y_{i}") for i in range(m) ]
         max_y = Int("max_y")
 
-        
-        print(max_y)
         #load couriers
         load = [ Int(f"l_{i}") for i in range(m) ]
 
@@ -45,20 +40,22 @@ def main():
         solver = Optimize()
 
         for i in range(m):
-            # load constraint 
-            solver.add(sum([x[i][j] for j in range(n+1)]) <= l[i])
-            # each courier leave the depot 
-            solver.add(load[i] > 0)
+            # domain contraints
+            solver.add([x[i][j] <= n for j in range(n+1)])
+            solver.add([x[i][j] >= 0 for j in range(n+1)])
+            
             # the load carried by each courier must be lower than the maximum load given in input
-            solver.add(And(load[i] == sum([If(x[i][j] != j, s[j],0) for j in range(n)]),load[i] <= l[i]))
+            solver.add(sum([If(x[i][j] != j, s[j], 0) for j in range(n)]) <= l[i])
 
+            # all couriers left the depot
+            solver.add(x[i][n] != n)
+            
             # total path cost 
-            # solver.add(y[i] == sum([If(x[i][j] != j, get_item(distances[j],[x[i][j]]),0) for j in range(n+1)]))
+            solver.add(y[i] == sum([If(x[i][j]!=j, get_item(distances[j],[x[i][j]]), 0) for j in range(n+1)]))
 
             # subcircuit
             solver.add(subcircuit(x[i], i))
 
-                
         # resources, one per column 
         for j in range(n):
             solver.add(sum([If(x[i][j] == j, 1, 0) for i in range(m)]) == m - 1)
@@ -66,8 +63,21 @@ def main():
 
         solver.add([max_y >= y[i] for i in range(m)])
         solver.minimize(max_y)
+        result = solver.check()
+        model = solver.model()
 
+        solution = sorted(
+            [(str(i), model[i]) for i in model], key=lambda x: str(x[0][-1])
+        )
 
+        path = np.zeros((m ,n+1), int)
+
+        for i in range(len(solution)):
+            if solution[i][0][:2] == 'x_':
+                path[int(solution[i][0][2])][int(solution[i][0][-1])] = solution[i][1].as_long()
+            if solution[i][0] == 'max_y':
+                objective = solution[i][1].as_long()
+        #print(path, '\n', objective)
 
 
 

@@ -32,7 +32,6 @@ def subcircuit(x, row):
     for i in S:
         ins[i] = (x[i] != i)
     
-    print(type(ins[0]))
     firstin = Int(f'firstin_{row}')
     lastin = Int(f'lastin_{row}')
     empty = Bool(f'empty_{row}')
