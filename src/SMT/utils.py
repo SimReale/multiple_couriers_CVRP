@@ -30,8 +30,9 @@ def subcircuit(x, row):
     order = Array(f"order_{row}", IntSort(),IntSort())
     ins  = [Bool(f'ins_{i}_{row}') for i in S]
     for i in S:
-        ins[i] = (x[i] != i)
+        ins[i] = (x[i] != i +1)
     
+
     firstin = Int(f'firstin_{row}')
     lastin = Int(f'lastin_{row}')
     empty = Bool(f'empty_{row}')
@@ -39,30 +40,28 @@ def subcircuit(x, row):
     constraints = []
     constraints.append(Distinct(x))
     constraints.append(Distinct(order))
-    constraints.append(firstin == Min([If(ins[i], i, u+1) for i in S]))
+    constraints.append(firstin == Min([u+1 + (ins[i])*(i-u-1) for i in S]))
     constraints.append(empty == (firstin > u))
 
     # If the subcircuit is empty then each node points at itself.
     for i in S:
         constraints.append(Implies(empty, Not(ins[i])))
 
-    conditions = []
-    # The firstin node is numbered 1 in the order array
-    conditions.append(Select(order, firstin) == 1)
-    # The lastin node is greater than firstin
-    conditions.append(lastin > firstin)
-    # The lastin node points at firstin.
-    conditions.append(get_item(x,lastin) == firstin)
-    # And both are in
-    conditions.append(get_item(ins,lastin))
-    #conditions.append(get_item(ins,firstin))
-    # The successor of each node except where it is firstin is numbered one more than the predecessor.
-    conditions.append(And([Implies(And(ins[i], x[i] - 1 != firstin),
-                                   Select(order, x[i] - 1) == Select(order, i) + 1) for i in S]))
-    
-    # Each node that is not in is numbered after the lastin node.
-    conditions.append(And([Or(ins[i], Select(order, lastin) < Select(order, i))
-                                      for i in S]))
-    
-    constraints.append(Implies(Not(empty), And(conditions)))
+    constraints.append(Implies(Not(empty),
+                               And(
+                                    # The firstin node is numbered 1 in the order array
+                                    Select(order, firstin) == 1,
+                                    # The lastin node is greater than firstin
+                                    lastin > firstin,
+                                    # The lastin node points at firstin.
+                                    get_item(x, lastin) == firstin + 1,
+                                    # And both are in
+                                    #get_item is okay beacuse ins is an array of booleans
+                                    get_item(ins, lastin),
+                                    get_item(ins, firstin),
+                                    # The successor of each node except where it is firstin is numbered one more than the predecessor.
+                                    And([Implies(And(ins[i], x[i] - 1 != firstin), Select(order, x[i] - 1) == Select(order, i) + 1) for i in S]),
+                                    # Each node that is not in is numbered after the lastin node.
+                                    And([Or(ins[i], Select(order, lastin) < Select(order, i)) for i in S])
+                                )))
     return constraints

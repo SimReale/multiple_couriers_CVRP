@@ -5,6 +5,7 @@ import numpy as np
 
 def main():
     #take the instances
+
     directory = 'src/instances'
     instances = os.listdir(directory)
     instances.sort()
@@ -27,7 +28,7 @@ def main():
 
         #path
         x = [ [ Int(f"x_{i}_{j}") for j in range(n+1) ] for i in range(m) ]
-        
+
         #distance couriers
         y = [ Int(f"y_{i}") for i in range(m) ]
         max_y = Int("max_y")
@@ -41,25 +42,24 @@ def main():
 
         for i in range(m):
             # domain contraints
-            solver.add([x[i][j] <= n for j in range(n+1)])
-            solver.add([x[i][j] >= 0 for j in range(n+1)])
+            solver.add([x[i][j] <= n+1  for j in range(n+1)])
+            solver.add([x[i][j] >= 1 for j in range(n+1)])
             
             # the load carried by each courier must be lower than the maximum load given in input
-            solver.add(sum([If(x[i][j] != j, s[j], 0) for j in range(n)]) <= l[i])
+            solver.add(sum([If(x[i][j] != j+1, s[j], 0) for j in range(n)]) <= l[i])
 
             # all couriers left the depot
-            solver.add(x[i][n] != n)
-            
+            solver.add(x[i][n] != n+1)
+
             # total path cost 
-            solver.add(y[i] == sum([If(x[i][j]!=j, get_item(distances[j],[x[i][j]]), 0) for j in range(n+1)]))
+            solver.add(y[i] == sum([get_item(distances[j], x[i][j]-1) for j in range(n+1)]))
 
             # subcircuit
             solver.add(subcircuit(x[i], i))
 
         # resources, one per column 
         for j in range(n):
-            solver.add(sum([If(x[i][j] == j, 1, 0) for i in range(m)]) == m - 1)
-
+            solver.add(sum([If(x[i][j] == j+1, 1, 0) for i in range(m)]) == m - 1)
 
         solver.add([max_y >= y[i] for i in range(m)])
         solver.minimize(max_y)
@@ -71,16 +71,13 @@ def main():
         )
 
         path = np.zeros((m ,n+1), int)
-
+        objective = np.inf
         for i in range(len(solution)):
             if solution[i][0][:2] == 'x_':
                 path[int(solution[i][0][2])][int(solution[i][0][-1])] = solution[i][1].as_long()
             if solution[i][0] == 'max_y':
                 objective = solution[i][1].as_long()
-        #print(path, '\n', objective)
-
-
-
+        print(path, '\n', objective, '\n', result)
 
 if __name__ == "__main__":
     main()
