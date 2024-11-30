@@ -9,7 +9,7 @@ def main():
     directory = 'src/instances'
     instances = os.listdir(directory)
     instances.sort()
-    for instance in instances[:1]:
+    for instance in instances:
         with open(directory + '/' + instance) as file:
             data = file.read().strip().splitlines()
         m = int(data[0]) #number couriers
@@ -17,12 +17,13 @@ def main():
         l = [int(i) for i in data[2].split()] #courier capacity
         s = [int(i) for i in data[3].split()] #size items
         distances = []
+        #letsgowskyyyyyy
         for i in range(n+1):
             row = [int(j) for j in data[4+i].split()]
             distances.append(row)
 
         #max_distance = sum([max(row) for row in distances])
-        max_load = max(l)
+        #max_load = max(l)
 
         #-----variables
 
@@ -39,6 +40,7 @@ def main():
         #-----contraints
 
         solver = Optimize()
+        solver.set("timeout", 5*60*1000)
 
         for i in range(m):
             # domain contraints
