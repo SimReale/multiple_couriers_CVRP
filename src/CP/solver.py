@@ -1,39 +1,9 @@
 from minizinc import Instance, Model, Solver
-import json, os
 from datetime import timedelta
-import time
-import check_solution
-import sys
-from CP.solver import solve as cp_solve
-from SMT.solver import solve as smt_solve
-from MIP.solver import solve as milp_solve
+import json, os
 
-def run_all():
-    #running all the instances with all the approaches
-    RESULTS_DIR = "/app/results/"
-    approaches = ['CP', 'SMT', 'MIP']
+def solve():
 
-    for approach in approaches:
-        if not os.path.exists(RESULTS_DIR + approach):
-            os.makedirs(RESULTS_DIR + approach)
-            print(f"Created results directory: {RESULTS_DIR}")
-
-def run_selected(instance, approach):
-    #run the instance {} using the approach {}
-    RESULTS_DIR = "/app/results/"
-    if not os.path.exists(RESULTS_DIR + approach):
-        os.makedirs(RESULTS_DIR + approach)
-
-if __name__ == "__main__":
-
-    args = sys.argv[1:]
-
-    if not args:
-        run_all()
-    else:
-        run_selected(args[0], args[1])
-    
-    # Define the directory for storing results
     RESULTS_DIR = "/app/results/CP"
 
     if not os.path.exists(RESULTS_DIR):
@@ -46,14 +16,23 @@ if __name__ == "__main__":
     DATA_DIR = "CP/data"
     instances = sorted(os.listdir(DATA_DIR))
 
-    for el in instances:
-        print(f"Solving instance: {el}")
+    for inst in instances:
+        print(f"Solving instance: {inst}")
 
-        model = Model("CP/CP_proj.mzn")
-        gecode = Solver.lookup("gecode")
-        inst = Instance(gecode, model)
+        '''model_names = os.listdir('models')
+        for model_name in model_names:
+            model = Model(model_name)
+            if gecode in model_name:
+                solver = Solver.lookup("gecode")
+            else:
+                solver = Solver.lookup("chuffed")
+            ''' 
         
-        inst.add_file(f"{DATA_DIR}/{el}")
+        model = Model("CP/CP_proj.mzn")
+        solver = Solver.lookup("gecode")
+        inst = Instance(solver, model)
+        
+        inst.add_file(f"{DATA_DIR}/{inst}")
         # Time limit of 5 minutes for solving
         timelimit = timedelta(minutes=5)
 
@@ -81,13 +60,8 @@ if __name__ == "__main__":
                 }
             }
 
-            result_filename = f"{RESULTS_DIR}/{el.removesuffix('.dzn')}.json"
+            result_filename = f"{RESULTS_DIR}/{inst.removesuffix('.dzn')}.json"
             with open(result_filename, "w") as json_file:
                 json.dump(result, json_file, indent=4)
-
+            
             print(f"Saved result to {result_filename}")
-
-    print("Solver completed.")
-    print("Check solution started")
-    check_solution.main(('check_solution', 'instances', '../results/'))
-    print("Check solution finished.")
