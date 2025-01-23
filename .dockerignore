@@ -1,0 +1,11 @@
+CDMO_Project-2023-2024.pdf
+LICENSE
+.DS_Store
+
+# Environments
+.venv
+
+results
+
+src/CP/models/.DS_Store
+src/.DS_Store

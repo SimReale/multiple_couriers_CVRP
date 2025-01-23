@@ -169,3 +169,10 @@ cython_debug/
 
 # Visual Studio Code
 .vscode/
+
+.last_build
+
+#ignore instances modification
+src/MIP/instances
+src/CP/data
+results
