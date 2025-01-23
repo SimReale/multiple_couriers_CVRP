@@ -10,6 +10,7 @@ array[1..n] of int: s;
 array[1..n+1, 1..n+1] of int: distances;
 
 
+
 % ========= DECISION VARIABLES ========= %
 
 % couriers assignments
@@ -41,7 +42,7 @@ constraint forall(i in 1..m)(
 );
 
 % couriers assignment for each pack
-constraint forall(i in 1..m, j in 1..n)( 
+constraint forall(i in 1..m, j in 1..n)(
 	if bins[j] == i then x[i,j] != j else x[i,j] == j endif
 );
 
@@ -63,4 +64,6 @@ var min_dist..max_dist: dist = max(i in 1..m)( sum(j in 1..n+1 where x[i,j] != j
 
 solve 
 	:: int_default_search(afc_size_max, indomain_random)
+	:: restart_luby(m*n)
+	:: relax_and_reconstruct(array1d(x), 80)
 minimize dist;

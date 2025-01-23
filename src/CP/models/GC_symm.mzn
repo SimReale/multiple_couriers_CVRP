@@ -9,7 +9,6 @@ array[1..m] of int: l;
 array[1..n] of int: s;
 array[1..n+1, 1..n+1] of int: distances;
 
-int: perc = 80;
 
 
 % ========= DECISION VARIABLES ========= %
@@ -76,8 +75,8 @@ var min_dist..max_dist: dist = max(i in 1..m)( sum(j in 1..n+1 where x[i,j] != j
 
 
 solve 
-%	:: int_default_search(afc_size_max, indomain_random)
-	:: int_search([x[i,j] | i in arg_sort(l), j in 1..n+1], first_fail, indomain_min)
+	:: int_default_search(afc_size_max, indomain_random)
+%	:: int_search([x[i,j] | i in arg_sort(l), j in 1..n+1], first_fail, indomain_min)
 	:: restart_luby(m*n)
-	:: relax_and_reconstruct(array1d(x), perc)
+	:: relax_and_reconstruct(array1d(x), 80)
 minimize dist;
