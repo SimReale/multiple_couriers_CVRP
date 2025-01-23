@@ -173,4 +173,6 @@ cython_debug/
 .last_build
 
 #ignore instances modification
-src/MIP/instances/inst*.dat
+src/MIP/instances
+src/CP/data
+results

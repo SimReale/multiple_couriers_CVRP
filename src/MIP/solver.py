@@ -1,14 +1,14 @@
 from amplpy import AMPL, add_to_path
 import os
-import pandas as pd
 import math
 import check_solution 
 import json
 import time
+import multiprocessing
 
 def instance_converter():
     #read instances
-    directory = 'src/instances'
+    directory = 'instances'
     instances = os.listdir(directory)
     instances.sort()
     for instance in instances:
@@ -52,7 +52,7 @@ def instance_converter():
         with open(output_file_path, "w") as output_file:
             output_file.writelines(output_lines)
 
-def main():
+def solve():
 
     instance_converter()
     
@@ -68,83 +68,78 @@ def main():
     instances = os.listdir(directory)
     instances.sort()
 
-    for inst in instances[12:13]:
+    solvers = [
+    'scip', 
+    'highs',
+    #'gurobi'
+    ]
+    models = os.listdir('MIP/models')
+    models = ['ampl.mod']
+    #instances = [instances[i] for i in range(len(instances)) if i in [12, 15, 18]]
+    for inst in instances:
+        results = {}
 
-        # Create an AMPL instance
-        ampl = AMPL()
-        # Read the model and data files.
-        ampl.read(f"src/MIP/ampl.mod")
-        ampl.read_data(f"{directory}/{inst}")
-        
-        solver = 'highs'
-        
-        ampl.setOption('solver', solver)
-        ampl.setOption(solver + '_options', f'timelimit={timeout}')
-        ampl.setOption('randseed', 42)
-
-        # Solve
-        start_time = time.time()
-        ampl.solve()
-        end_time = time.time()
-        solve_time = min(300, int(end_time-start_time))
-        #solve_time = math.floor(ampl.get_value("_solve_elapsed_time"))
-
-        '''if ampl.solve_result != "solved":
-            raise Exception(f"Failed to solve (solve_result: {ampl.solve_result})")'''
-        
-        solved_value = ampl.getValue('solve_result')
-        if solved_value == 'solved' or solved_value == 'limit':
-            #Get the values of the variable Buy in a dataframe object
-            obj = round(ampl.getValue("max_distance"))
-
-            x = ampl.get_variable("x")
-            x = x.get_values()
-            x = x.to_dict()
-
-            with open('src/instances' + '/' + inst) as file:
-                data = file.read().strip().splitlines()
-
-            m = int(data[0])
-            n = int(data[1])
+        for model_name in models:
+            for solver in solvers:
             
-            sol = {}
-            for c in range(1, m + 1):
-                start = n+1
-                for i in range(1, n+1):
-                    val = round(x[(start, i, c)], 2)
-                    if val == 1:
-                        start = i
-                        sol[c] = []
-                        break
+                # Create an AMPL instance
+                ampl = AMPL()
+                # Read the model and data files.
+                ampl.read(f"MIP/models/{model_name}")
+                ampl.read_data(f"{directory}/{inst}")
 
-                i = 1
-                while True:
-                    val = round(x[(start, i, c)], 2)
-                    if val == 1:
-                        sol[c].append(start)
-                        start = i
-                    i += 1
-                    if start == n+1:
-                        break
-                    if i>n+1:
-                        i = 1
+                ampl.set_option('solver', solver)
+                ampl.set_option(solver + '_options', f'timelimit= {timeout}')
+                ampl.set_option('randseed', 42)
 
-            result = {
-                'highs' : 
-                {
-                    "time" : solve_time,
-                    "optimal" : ampl.getValue('solve_result') == 'solved' and solve_time < timeout,
-                    "obj" : obj,
-                    "sol" : list(sol.values())
-                }
-            }
-            print(f'instance: {inst}: {result}\n')
+                # solve and check the time
+                start_time = time.time()
+                ampl.solve()
+                end_time = time.time()
+                solve_time = math.floor(end_time-start_time)
 
-            result_filename = f"{RESULTS_DIR}/{inst.removesuffix('.dat')}.json"
-            with open(result_filename, "w") as json_file:
-                json.dump(result, json_file, indent=4)
+                solve_result = ampl.getValue('solve_result')
+                
+                #get result
+                if solve_result == 'solved' or solve_result == 'limit':
 
-    check_solution.main(('check_solution', 'src/instances', 'results/'))
+                    obj = round(ampl.getValue("max_distance"))
+                    x = ampl.getVariable('x')
+                    m = ampl.getValue('m')
+                    n = ampl.getValue('n')
+                    
+                    sol = []
+                    for couriers in range(1,m+1):
+                        couriers_packs = []
+                        packs = n + 1
+                        while round(x[packs, n+1, couriers].value()) == 0:
+                            for i in range(1, n + 1):
+                                if round(x[packs, i, couriers].value()) == 1:
+                                    couriers_packs.append(i)
+                                    packs = i
+                                    break
+                        sol.append(couriers_packs)
+
+                    results[model_name.removesuffix('.mod')+"_"+solver] = {
+                        "time" : solve_time if solve_result == 'solved' else timeout,
+                        "optimal" : solve_result == 'solved' and solve_time < timeout,
+                        "obj" : obj,
+                        "sol" : sol
+                        }
+
+                    print(f'instance: {inst} {model_name.removesuffix(".mod")+"_"+solver}: {results[model_name.removesuffix(".mod")+"_"+solver]}\n')
+                
+                else:
+                    results[model_name.removesuffix('.mod')+"_"+solver] = {
+                        "time": timeout,
+                        "optimal": False,
+                        "obj": None,
+                        "sol": None
+                    }
+
+        result_filename = f"{RESULTS_DIR}/{inst.removesuffix('.dat')}.json"
+        with open(result_filename, "w") as json_file:
+            json.dump(results, json_file, indent=4)
 
 if __name__ == "__main__":
-    main()
+    solve()
