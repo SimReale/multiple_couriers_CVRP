@@ -8,4 +8,5 @@ LICENSE
 results
 
 src/CP/models/.DS_Store
+src/MIP/models/.DS_Store
 src/.DS_Store
