@@ -13,35 +13,48 @@ def run_all():
 
     # Define the directory for storing results
     RESULTS_DIR = "/app/results/"
-    approaches = ['CP', 'SMT', 'MIP']
+    approaches = ['CP', 'SAT', 'SMT', 'MIP']
 
     for approach in approaches:
         if not os.path.exists(RESULTS_DIR + approach):
             os.makedirs(RESULTS_DIR + approach)
-            print(f"Created results directory: {RESULTS_DIR}")
+            print(f"Created results directory: {RESULTS_DIR + approach}")
 
     #cp_solve()
     mip_solve()
 
-def run_selected(instance, approach):
-    #run the instance {} using the approach {}
+def run_selected(instance, approach, solver):
+    #run the selected instance using the chosen approach
+    print('well arrived in the hell')
+    approach_map = {
+        'CP' : cp_solve,
+        #'SAT' : sat_solve, 
+        #'SMT' : smt_solve,
+        'MIP' : mip_solve
+    }
 
-    RESULTS_DIR = "/app/results/"
-    if not os.path.exists(RESULTS_DIR + approach):
-        os.makedirs(RESULTS_DIR + approach)
+    try:
+        approach_map[approach](instance, solver)
+
+        RESULTS_DIR = "/app/results/"
+        if not os.path.exists(RESULTS_DIR + approach):
+            os.makedirs(RESULTS_DIR + approach)
+        
+    except:
+        print('Incorrect parameters given')
 
 if __name__ == "__main__":
 
     args = sys.argv[1:]
-    
+
     #moving to the current working directory
     SRC_DIR = "/app/src"
     os.chdir(SRC_DIR)
-    
+
     if not args:
         run_all()
     else:
-        run_selected(args[0], args[1])
+        run_selected(args[0], args[1].upper(), args[2])
 
     print("Solver completed.")
     print("Check solution started")

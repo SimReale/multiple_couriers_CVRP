@@ -1,10 +1,8 @@
 from amplpy import AMPL, add_to_path
 import os
 import math
-import check_solution 
 import json
 import time
-import multiprocessing
 
 def instance_converter():
     #read instances
@@ -55,12 +53,6 @@ def instance_converter():
 def solve():
 
     instance_converter()
-    
-    RESULTS_DIR = "results/MIP"
-
-    if not os.path.exists(RESULTS_DIR):
-        os.makedirs(RESULTS_DIR)
-        print(f"Created results directory: {RESULTS_DIR}")
 
     timeout = 300
 
@@ -69,45 +61,56 @@ def solve():
     instances.sort()
 
     solvers = [
-    'scip', 
-    'highs',
-    #'gurobi'
+    #'scip', 
+    #'highs',
+    'gurobi'
     ]
     models = os.listdir('MIP/models')
-    models = ['ampl.mod']
-    #instances = [instances[i] for i in range(len(instances)) if i in [12, 15, 18]]
-    for inst in instances:
+    models = [mod for mod in models if mod != 'two_index.mod']
+
+    for inst in instances[:10]:
         results = {}
 
         for model_name in models:
             for solver in solvers:
-            
                 # Create an AMPL instance
                 ampl = AMPL()
                 # Read the model and data files.
                 ampl.read(f"MIP/models/{model_name}")
+                print('lets read it')
                 ampl.read_data(f"{directory}/{inst}")
 
                 ampl.set_option('solver', solver)
-                ampl.set_option(solver + '_options', f'timelimit= {timeout}')
+                ampl.set_option(solver + '_options', f'threads= 1 timelimit= {timeout}')
                 ampl.set_option('randseed', 42)
 
                 # solve and check the time
+                print('lets solve it')
                 start_time = time.time()
                 ampl.solve()
                 end_time = time.time()
                 solve_time = math.floor(end_time-start_time)
+                print('lets res it')
 
                 solve_result = ampl.getValue('solve_result')
-                
-                #get result
-                if solve_result == 'solved' or solve_result == 'limit':
 
-                    obj = round(ampl.getValue("max_distance"))
-                    x = ampl.getVariable('x')
-                    m = ampl.getValue('m')
-                    n = ampl.getValue('n')
+                obj = round(ampl.getValue("max_distance"))
+                x = ampl.getVariable('x')
+                m = ampl.getValue('m')
+                n = ampl.getValue('n')
+
+                #get result
+                if solve_result in ["infeasible", "unbounded"] or obj == 0.0:
                     
+                    results[model_name.removesuffix('.mod')+"_"+solver] = {
+                        "time": timeout,
+                        "optimal": False,
+                        "obj": None,
+                        "sol": None
+                    }
+                
+                else:
+
                     sol = []
                     for couriers in range(1,m+1):
                         couriers_packs = []
@@ -128,16 +131,8 @@ def solve():
                         }
 
                     print(f'instance: {inst} {model_name.removesuffix(".mod")+"_"+solver}: {results[model_name.removesuffix(".mod")+"_"+solver]}\n')
-                
-                else:
-                    results[model_name.removesuffix('.mod')+"_"+solver] = {
-                        "time": timeout,
-                        "optimal": False,
-                        "obj": None,
-                        "sol": None
-                    }
 
-        result_filename = f"{RESULTS_DIR}/{inst.removesuffix('.dat')}.json"
+        result_filename = f"../results/MIP/{inst.removesuffix('.dat')}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)
 
