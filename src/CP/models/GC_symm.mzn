@@ -59,10 +59,6 @@ constraint forall(i in 1..n, j in i+1..n)(
 	if s[i] == s[j] /\ load[bins[i]] == load[bins[j]] then lex_lesseq([bins[i]], [bins[j]]) endif
 );
 
-%constraint forall(i in 1..m, j in i+1..m)(
-%	if l[i] == l[j] then load[i]<=load[j] endif
-%	);
-
 
 
 % ========= OBJECTIVE FUNCTION ========= %
@@ -76,7 +72,6 @@ var min_dist..max_dist: dist = max(i in 1..m)( sum(j in 1..n+1 where x[i,j] != j
 
 solve 
 	:: int_default_search(afc_size_max, indomain_random)
-%	:: int_search([x[i,j] | i in arg_sort(l), j in 1..n+1], first_fail, indomain_min)
 	:: restart_luby(m*n)
 	:: relax_and_reconstruct(array1d(x), 80)
 minimize dist;

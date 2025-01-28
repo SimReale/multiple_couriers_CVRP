@@ -5,6 +5,7 @@ import time
 import check_solution
 import sys
 from CP.solver import solve as cp_solve
+from SAT.solver import solve as sat_solve
 #from SMT.solver import solve as smt_solve
 from MIP.solver import solve as mip_solve
 
@@ -13,15 +14,16 @@ def run_all():
 
     # Define the directory for storing results
     RESULTS_DIR = "/app/results/"
-    approaches = ['CP', 'SMT', 'MIP']
+    approaches = ['CP', 'SAT', 'SMT', 'MIP']
 
     for approach in approaches:
         if not os.path.exists(RESULTS_DIR + approach):
             os.makedirs(RESULTS_DIR + approach)
-            print(f"Created results directory: {RESULTS_DIR}")
+            print(f"Created results directory: {RESULTS_DIR + approach}")
 
     #cp_solve()
-    mip_solve()
+    sat_solve()
+    #mip_solve()
 
 def run_selected(instance, approach):
     #run the instance {} using the approach {}
