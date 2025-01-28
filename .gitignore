@@ -162,7 +162,7 @@ cython_debug/
 #.idea/
 
 # Ignora i file specifici di macOS
-.DS_Store
+**/.DS_Store
 .AppleDouble
 .LSOverride 
 
