@@ -11,7 +11,7 @@ print("D:", D)'''
 
 
 
-def MTZ_model(m, n, L, S, D):
+def MTZ_model(m, n, L, S, D, timeout = 300):
 
     cours = range(m)
     packs = range(n)
@@ -149,7 +149,7 @@ def MTZ_model(m, n, L, S, D):
     curr_objective = upper_bound + 1
     
 
-    while elapsed_time < 300:
+    while elapsed_time < timeout:
         solver.set("timeout", math.floor(300000 - solve_time*1000))
         solver.push()
         solver.add(max_distance < Min([curr_objective, upper_bound]))
@@ -161,7 +161,7 @@ def MTZ_model(m, n, L, S, D):
             res["optimal"] = True
             break
 
-        if status == unknown or solve_time >= 300:
+        if status == unknown or solve_time >= timeout:
             res["time"] = math.floor(solve_time)
             break
         

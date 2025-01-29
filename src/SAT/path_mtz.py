@@ -1,5 +1,4 @@
 from SAT.sat_utils import *
-#from sat_utils import *
 
 '''SRC_PATH = 'src/instances/inst05.dat'
 m, n, L, S, D = read_instance(SRC_PATH)
