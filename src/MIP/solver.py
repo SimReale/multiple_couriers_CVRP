@@ -4,20 +4,10 @@ import math
 import json
 import time
 
-def instance_converter(instance_number= None):
-    #read instances
-    directory = 'instances'
-    instances = os.listdir(directory)
-    instances.sort()
-    if instance_number:
-        instances = instances[int(instance_number)-1:int(instance_number)]
-
-    output_directory = "MIP/instances"
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+def instance_converter(instances, output_directory):
 
     for instance in instances:
-        with open(directory + '/' + instance) as file:
+        with open('instances/' + instance) as file:
             data = file.read().strip().splitlines()
         
         output_lines = []
@@ -52,14 +42,14 @@ def instance_converter(instance_number= None):
         with open(output_file_path, "w") as output_file:
             output_file.writelines(output_lines)
 
-def solve(instance_number= None, model_name= None, solver_name= None, timeout = 300):
+def solve(instances, model_name= None, solver_name= None, timeout = 300):
 
-    instance_converter(instance_number)
+    DATA_DIR = 'MIP/instances'
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
 
-    #time.sleep(100)
-
-    directory = 'MIP/instances'
-    instances = os.listdir(directory)
+    instance_converter(instances, DATA_DIR)
+    instances = os.listdir(DATA_DIR)
     instances.sort()
 
     if solver_name:
@@ -87,7 +77,7 @@ def solve(instance_number= None, model_name= None, solver_name= None, timeout = 
                 ampl = AMPL()
                 # Read the model and data files.
                 ampl.read(f"MIP/models/{mdl}")
-                ampl.read_data(f"{directory}/{inst}")
+                ampl.read_data(f"{DATA_DIR}/{inst}")
 
                 ampl.set_option('solver', solver)
                 if solver in ['gurobi', 'highs']:

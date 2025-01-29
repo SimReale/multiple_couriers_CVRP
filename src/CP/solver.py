@@ -4,13 +4,16 @@ import json, os
 from CP.parser_CP import parse
 import time, math
 
-def solve(instance_number= None, model_name= None, solver_name= None, timeout = 300):
+def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
 
-    parse(instance_number)
+    #directory for parsed data
     DATA_DIR = "CP/data"
-    instances = sorted(os.listdir(DATA_DIR))
-    if instance_number:
-        instances = [inst for inst in instances if instance_number in inst]
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+
+    parse(instance_list, DATA_DIR)
+
+    parsed_instances = sorted(os.listdir(DATA_DIR))
 
     if solver_name:
         solver_list = [solver_name]
@@ -19,7 +22,7 @@ def solve(instance_number= None, model_name= None, solver_name= None, timeout = 
                        'chuffed'
                        ]
 
-    for inst in instances:
+    for inst in parsed_instances:
         print(f"Solving instance: {inst}")
         results = {}
         for slv in solver_list:

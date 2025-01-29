@@ -8,7 +8,7 @@ set ITEMS := {1..n};
 set V := {1..n+1}; #n+1 is the depot
 
 #additional parameters
-param l{COURIERS} integer; #array of capacity of each coureirs
+param l{COURIERS} integer; #array of capacity of each couriers
 param s{ITEMS} integer; #array of size of each packs
 param D{i in V, j in V} integer; #matrix of D
 

@@ -5,39 +5,28 @@ from CP.solver import solve as cp_solve
 #from SMT.solver import solve as smt_solve
 from MIP.solver import solve as mip_solve
 
-def run_all():
-    #run all the instances with all the approaches
-
-    # Define the directory for storing results
-    RESULTS_DIR = "/app/results/"
-    approaches = ['CP', 'SAT', 'SMT', 'MIP']
-
-    for approach in approaches:
-        if not os.path.exists(RESULTS_DIR + approach):
-            os.makedirs(RESULTS_DIR + approach)
-            print(f"Created results directory: {RESULTS_DIR + approach}")
-
-    #cp_solve()
-    #sat_solve()
-    #smt_solve()
-    mip_solve()
-
-def run_selected(instance_number, approach, model_name, solver_name):
+def run_models(instances, approach, model_name= None, solver_name= None, timeout= 300):
     #run the selected instance using the chosen approach
+
+    RESULTS_DIR = "/app/results/"
+
     approach_map = {
         'CP' : cp_solve,
         #'SAT' : sat_solve, 
         #'SMT' : smt_solve,
         'MIP' : mip_solve
     }
-
-    RESULTS_DIR = "/app/results/"
+    
     try:
+        
+        for approach in approaches:
+            #create results directory
+            if not os.path.exists(RESULTS_DIR + approach):
+                os.makedirs(RESULTS_DIR + approach)
 
-        if not os.path.exists(RESULTS_DIR + approach):
-            os.makedirs(RESULTS_DIR + approach)
+            print(approach_map[approach])
 
-        approach_map[approach](instance_number, model_name, solver_name)
+            approach_map[approach](instances, model_name, solver_name)
 
     except:
         print('Incorrect parameters given')
@@ -47,15 +36,24 @@ if __name__ == "__main__":
     args = sys.argv[1:]
 
     if not args:
-        run_all()
+        
+        directory = 'instances'
+        instances = os.listdir(directory)
+        instances.sort()
+        approaches = [
+                      'CP', 
+                      #'SAT', 
+                      #'SMT', 
+                      'MIP'
+                      ]
+        run_models(instances, approaches)
+
     else:
-        instance_number = args[0]
-        approach = args[1].upper()
+
+        instances_name = args[0].split(',')
+        approach = [args[1].upper()]
         model_name = args[2]
         solver_name = args[3]
-        run_selected(instance_number, approach, model_name, solver_name)
+        run_models(instances_name, approach, model_name, solver_name)
 
-    print("Solver completed.")
-    print("Check solution started")
     check_solution.main(('check_solution', 'instances', 'results/'))
-    print("Check solution finished.")
