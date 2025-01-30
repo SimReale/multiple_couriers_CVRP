@@ -2,5 +2,5 @@
 
 
 # to build and run the docker
-get into the directory src, then use the following command
+put yourself into the same directory where the Dockerfile is, then use the following command
 ./run_docker.sh <docker_name> [instance approach method_name solver]

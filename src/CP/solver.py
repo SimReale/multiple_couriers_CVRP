@@ -59,7 +59,7 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                         result_path.append(courier_path)
 
                     results[mdl] = {
-                        "time" : solve_time,
+                        "time" : solve_time if solve_time < timeout else timeout,
                         "optimal" : result.status == result.status.OPTIMAL_SOLUTION and solve_time < timeout,
                         "obj" : result.objective,
                         "sol" : result_path

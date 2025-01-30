@@ -10,4 +10,4 @@ PARAMS="${@:2}"
 
 # Run the Docker container with the volume mount
 docker build -t $IMAGE_NAME .
-docker run -v "$(pwd)/$HOST_RESULTS_DIR:$CONTAINER_RESULTS_DIR" $IMAGE_NAME $PARAMS
+docker run -v "$(pwd)/$HOST_RESULTS_DIR:$CONTAINER_RESULTS_DIR" --memory-swap=-1 $IMAGE_NAME $PARAMS
