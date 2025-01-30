@@ -149,7 +149,7 @@ def MTZ_model(m, n, L, S, D, symm=False):
             solver.set("timeout", math.floor(300000 - solve_time*1000))
             solver.push()
 
-            # binary search
+            # Adaptive Binary Search
             if curr_objective == upper_bound:
                 new_upper_bound = upper_bound
             elif curr_objective <= 2*lower_bound:
