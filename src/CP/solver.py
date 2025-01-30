@@ -28,7 +28,7 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
         for slv in solver_list:
 
             if model_name:
-                model_list = [model_name]
+                model_list = [f'{model_name}.mzn']
             else:
                 model_list = os.listdir(f'CP/models/{slv}')
 
@@ -51,6 +51,7 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                 # Extract the solution matrix
                 if result.status != result.status.UNKNOWN:
                     path_matrix = result.solution.x
+                    print(path_matrix)
                     result_path = []
                     for r in range(len(path_matrix)):
                         courier_path = [path_matrix[r][len(path_matrix[r])-1]]

@@ -62,11 +62,11 @@ def solve(instances, model_name= None, solver_name= None, timeout = 300):
         ]
 
     if model_name:
-        models = [model_name]
+        models = [f'{model_name}.mod']
     else:
         models = os.listdir('MIP/models')
 
-    models = [mod for mod in models if mod != 'two_index.mod']
+    #models = [mod for mod in models if mod != 'two_index.mod']
 
     for inst in instances:
 

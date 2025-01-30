@@ -5,7 +5,7 @@ from CP.solver import solve as cp_solve
 #from SMT.solver import solve as smt_solve
 from MIP.solver import solve as mip_solve
 
-def run_models(instances, approach, model_name= None, solver_name= None, timeout= 300):
+def run_models(instances, approaches, solver_name= None, model_name= None, timeout= 300):
     #run the selected instance using the chosen approach
 
     RESULTS_DIR = "/app/results/"
@@ -16,7 +16,7 @@ def run_models(instances, approach, model_name= None, solver_name= None, timeout
         #'SMT' : smt_solve,
         'MIP' : mip_solve
     }
-    
+
     try:
         
         for approach in approaches:
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         instances = os.listdir(directory)
         instances.sort()
         approaches = [
-                      'CP', 
+                      #'CP', 
                       #'SAT', 
                       #'SMT', 
                       'MIP'
@@ -50,10 +50,11 @@ if __name__ == "__main__":
 
     else:
 
-        instances_name = args[0].split(',')
+        instances_name = [f'{inst}.dat' for inst in args[0].split(',')]
         approach = [args[1].upper()]
-        model_name = args[2]
-        solver_name = args[3]
-        run_models(instances_name, approach, model_name, solver_name)
+        solver_name = args[2]
+        model_name = args[3]
+
+        run_models(instances_name, approach, solver_name, model_name)
 
     check_solution.main(('check_solution', 'instances', 'results/'))
