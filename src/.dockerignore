@@ -5,7 +5,8 @@ LICENSE
 .venv
 
 # Results
-./results
+results
+../results
 
 # MacOs
 **/.DS_Store

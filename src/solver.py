@@ -1,47 +1,32 @@
-from minizinc import Instance, Model, Solver
-import json, os
-from datetime import timedelta
-import time
+import os, sys
 import check_solution
-import sys
 from CP.solver import solve as cp_solve
-from SAT.solver import solve as sat_solve
+#from SAT.solver import solve as sat_solve
 #from SMT.solver import solve as smt_solve
 from MIP.solver import solve as mip_solve
 
-def run_all():
-    #run all the instances with all the approaches
-
-    # Define the directory for storing results
-    RESULTS_DIR = "/app/results/"
-    approaches = ['CP', 'SAT', 'SMT', 'MIP']
-
-    for approach in approaches:
-        if not os.path.exists(RESULTS_DIR + approach):
-            os.makedirs(RESULTS_DIR + approach)
-            print(f"Created results directory: {RESULTS_DIR + approach}")
-
-    #cp_solve()
-    sat_solve()
-    #mip_solve()
-
-def run_selected(instance_number, approach, solver_name):
+def run_models(instances, approaches, solver_name= None, model_name= None, timeout= 300):
     #run the selected instance using the chosen approach
-    print('well arrived in the hell')
+
+    RESULTS_DIR = "/app/results/"
+
     approach_map = {
         'CP' : cp_solve,
         #'SAT' : sat_solve, 
         #'SMT' : smt_solve,
         'MIP' : mip_solve
     }
-    RESULTS_DIR = "/app/results/"
-    
+
     try:
+        
+        for approach in approaches:
+            #create results directory
+            if not os.path.exists(RESULTS_DIR + approach):
+                os.makedirs(RESULTS_DIR + approach)
 
-        if not os.path.exists(RESULTS_DIR + approach):
-            os.makedirs(RESULTS_DIR + approach)
+            print(approach_map[approach])
 
-        approach_map[approach](instance_number, solver_name)
+            approach_map[approach](instances, model_name, solver_name)
 
     except:
         print('Incorrect parameters given')
@@ -50,17 +35,26 @@ if __name__ == "__main__":
 
     args = sys.argv[1:]
 
-    #moving to the current working directory
-    SRC_DIR = "/app/src"
-    os.chdir(SRC_DIR)
-    print(args)
-
     if not args:
-        run_all()
-    else:
-        run_selected(args[0], args[1].upper(), args[2])
+        
+        directory = 'instances'
+        instances = os.listdir(directory)
+        instances.sort()
+        approaches = [
+                      #'CP', 
+                      #'SAT', 
+                      #'SMT', 
+                      'MIP'
+                      ]
+        run_models(instances, approaches)
 
-    print("Solver completed.")
-    print("Check solution started")
-    check_solution.main(('check_solution', 'instances', '../results/'))
-    print("Check solution finished.")
+    else:
+
+        instances_name = [f'{inst}.dat' for inst in args[0].split(',')]
+        approach = [args[1].upper()]
+        solver_name = args[2]
+        model_name = args[3]
+
+        run_models(instances_name, approach, solver_name, model_name)
+
+    check_solution.main(('check_solution', 'instances', 'results/'))

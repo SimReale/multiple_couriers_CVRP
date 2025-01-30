@@ -30,7 +30,7 @@ def binary_to_integer(binary_vector):
     return integer_expr
 
 def read_instance(file_path):
-    with open(file_path, 'r') as f:
+    with open('instances/'+file_path, 'r') as f:
         lines = f.readlines()
         m = int(lines[0])
         n = int(lines[1])

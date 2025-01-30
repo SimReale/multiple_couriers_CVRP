@@ -29,6 +29,11 @@ constraint forall(i in 1..m, j in 1..n)(
 	if bins[j] == i then x[i,j] != j else x[i,j] == j endif
 );
 
+% each courier must take an item
+constraint forall(i in 1..m)(
+ 	x[i, n+1] != n+1
+);
+
 %path construction
 constraint forall(i in 1..m)(	
 	subcircuit(x[i,..])

@@ -47,31 +47,13 @@ def parse_dat(text):
         "distances": distances
     }
 
-def parse(instance_number : None):
+def parse(instance_list, parsed_dir):
 
-    new_dir = "CP/data"
-    if not os.path.exists(new_dir):
-        os.makedirs(new_dir)
-    
-    instance_number_list = list(range(1, 22))
-    if instance_number:
-        instance_number_list = [instance_number]
-
-    for i in instance_number_list:
-        if i < 10:
-            j = "0"+str(i)
-        else: 
-            j = str(i)
-        
-        file_name = 'inst'+j
-        
-        os.chdir('instances/')
-        
-        with open(file_name+'.dat', "r") as instance:
-            new_file = parse_dat(instance.read())
+    for file_name in instance_list:
+        with open('instances/' + file_name) as file:
+            new_file = parse_dat(file.read())
             instance = to_mzn(new_file)
 
-        os.chdir('../'+new_dir)
-        with open(file_name+".dzn", "w") as f:
-            f.write(instance)
-        os.chdir('../../')
+        output_file_path = os.path.join(parsed_dir, f"{file_name}")
+        with open(f'{output_file_path.removesuffix('.dat')}.dzn', "w") as output_file:
+            output_file.write(instance)

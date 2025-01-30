@@ -4,13 +4,10 @@ import math
 import json
 import time
 
-def instance_converter():
-    #read instances
-    directory = 'instances'
-    instances = os.listdir(directory)
-    instances.sort()
+def instance_converter(instances, output_directory):
+
     for instance in instances:
-        with open(directory + '/' + instance) as file:
+        with open('instances/' + instance) as file:
             data = file.read().strip().splitlines()
         
         output_lines = []
@@ -41,68 +38,68 @@ def instance_converter():
             output_lines.append(f'\n')
         output_lines.append(';')
 
-        #convert them into readable file for ampl
-        output_directory = "src/MIP/instances"
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-
         output_file_path = os.path.join(output_directory, f"{instance}")
         with open(output_file_path, "w") as output_file:
             output_file.writelines(output_lines)
 
-def solve():
+def solve(instances, model_name= None, solver_name= None, timeout = 300):
 
-    instance_converter()
+    DATA_DIR = 'MIP/instances'
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
 
-    timeout = 300
-
-    directory = 'src/MIP/instances'
-    instances = os.listdir(directory)
+    instance_converter(instances, DATA_DIR)
+    instances = os.listdir(DATA_DIR)
     instances.sort()
 
-    solvers = [
-    #'scip', 
-    #'highs',
-    'gurobi'
-    ]
-    models = os.listdir('MIP/models')
-    models = [mod for mod in models if mod != 'two_index.mod']
+    if solver_name:
+        solvers = [solver_name]
+    else:
+        solvers = [
+        'scip', 
+        'highs',
+        'gurobi'
+        ]
 
-    for inst in instances[:10]:
+    if model_name:
+        models = [f'{model_name}.mod']
+    else:
+        models = os.listdir('MIP/models')
+
+    #models = [mod for mod in models if mod != 'two_index.mod']
+
+    for inst in instances:
+
         results = {}
-
-        for model_name in models:
+        for mdl in models:
             for solver in solvers:
                 # Create an AMPL instance
                 ampl = AMPL()
                 # Read the model and data files.
-                ampl.read(f"MIP/models/{model_name}")
-                print('lets read it')
-                ampl.read_data(f"{directory}/{inst}")
+                ampl.read(f"MIP/models/{mdl}")
+                ampl.read_data(f"{DATA_DIR}/{inst}")
 
                 ampl.set_option('solver', solver)
-                ampl.set_option(solver + '_options', f'threads= 1 timelimit= {timeout}')
+                if solver in ['gurobi', 'highs']:
+                    ampl.set_option(solver + '_options', f'threads= 1 timelimit= {timeout}')
+                else:
+                    ampl.set_option(solver + '_options', f'timelimit= {timeout}')
                 ampl.set_option('randseed', 42)
 
                 # solve and check the time
-                print('lets solve it')
                 start_time = time.time()
                 ampl.solve()
                 end_time = time.time()
                 solve_time = math.floor(end_time-start_time)
-                print('lets res it')
 
                 solve_result = ampl.getValue('solve_result')
-
                 obj = round(ampl.getValue("max_distance"))
                 x = ampl.getVariable('x')
                 m = ampl.getValue('m')
                 n = ampl.getValue('n')
 
-                #get result
                 if solve_result in ["infeasible", "unbounded"] or obj == 0.0:
-                    
-                    results[model_name.removesuffix('.mod')+"_"+solver] = {
+                    results[mdl.removesuffix('.mod')+"_"+solver] = {
                         "time": timeout,
                         "optimal": False,
                         "obj": None,
@@ -110,7 +107,6 @@ def solve():
                     }
                 
                 else:
-
                     sol = []
                     for couriers in range(1,m+1):
                         couriers_packs = []
@@ -123,16 +119,16 @@ def solve():
                                     break
                         sol.append(couriers_packs)
 
-                    results[model_name.removesuffix('.mod')+"_"+solver] = {
+                    results[mdl.removesuffix('.mod')+"_"+solver] = {
                         "time" : solve_time if solve_result == 'solved' else timeout,
                         "optimal" : solve_result == 'solved' and solve_time < timeout,
                         "obj" : obj,
                         "sol" : sol
                         }
 
-                    print(f'instance: {inst} {model_name.removesuffix(".mod")+"_"+solver}: {results[model_name.removesuffix(".mod")+"_"+solver]}\n')
+                    print(f'instance: {inst} {mdl.removesuffix(".mod")+"_"+solver}: {results[mdl.removesuffix(".mod")+"_"+solver]}\n')
 
-        result_filename = f"../results/MIP/{inst.removesuffix('.dat')}.json"
+        result_filename = f"results/MIP/{inst.removesuffix('.dat')}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)
 
