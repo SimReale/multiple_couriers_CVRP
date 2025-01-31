@@ -48,9 +48,9 @@ def compute_bounds(m, n, D):
     D = distance matrix in input
     """
     lower_bound = max([D[-1][p] + D[p][-1] for p in range(n)])
-    #upper_bound = max([D[-1][indices[0]] + sum([D[indices[i]][indices[i+1]] for i in range(n-m)]) + D[indices[n-m]][-1] for indices in combinations(range(n), n-m+1)])
+    upper_bound = max([D[-1][indices[0]] + sum([D[indices[i]][indices[i+1]] for i in range(n-m)]) + D[indices[n-m]][-1] for indices in combinations(range(n), n-m+1)])
 
-    upper_bound = sum([max(D[i]) for i in range(n+1)])
+    #upper_bound = sum([max(D[i]) for i in range(n+1)])
 
     return lower_bound, upper_bound
 

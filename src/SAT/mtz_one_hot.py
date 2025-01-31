@@ -3,11 +3,11 @@ import signal
 import gc
 
 
-def MTZ_model(m, n, L, S, D, symm=False):
+def MTZ_model(m, n, L, S, D, timeout, symm=False):
 
     # Results initialisation
     res = {
-        "time": 300,
+        "time": timeout,
         "optimal": False,
         "obj": None,
         "sol": None
@@ -15,7 +15,7 @@ def MTZ_model(m, n, L, S, D, symm=False):
 
     # Timeout initialization
     signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(300)
+    signal.alarm(timeout)
     start_time = time()
 
     try:
@@ -102,8 +102,11 @@ def MTZ_model(m, n, L, S, D, symm=False):
         if symm == True:
             for p1 in packs:
                 for p2 in packs:
-                    #solver.add(And([Implies(And(paths[c][-1][p1], paths[c][p2][-1]), p1 <= p2) for c in cours]))
 
+                    # lexicographic ordering on the paths
+                    solver.add(And([Implies(And(paths[c][-1][p1], paths[c][p2][-1]), p1 <= p2) for c in cours]))
+
+                    # lexicographic ordering on the loads
                     if p1 != p2:
                         solver.add([Implies(And(S[p1] == S[p2], Sum([If(assignments[c1][p], S[p], 0) for p in packs]) == Sum([If(assignments[c2][p], S[p], 0) for p in packs])), 
                                             And([assignments[c1][p1], assignments[c2][p2], c1 < c2])) for c1 in cours for c2 in cours if c1 != c2])
@@ -144,15 +147,15 @@ def MTZ_model(m, n, L, S, D, symm=False):
 
         
 
-        while elapsed_time < 300:
+        while elapsed_time < timeout:
 
-            solver.set("timeout", math.floor(300000 - solve_time*1000))
+            solver.set("timeout", math.floor((timeout - solve_time)*1000))
             solver.push()
 
             # Adaptive Binary Search
-            if curr_objective == upper_bound:
-                new_upper_bound = upper_bound
-            elif curr_objective <= 2*lower_bound:
+            '''if curr_objective == upper_bound:
+                new_upper_bound = upper_bound'''
+            if curr_objective <= 2*lower_bound:
                 new_upper_bound = curr_objective
             else:
                 new_upper_bound = (lower_bound + curr_objective)//2 + 1
@@ -166,8 +169,8 @@ def MTZ_model(m, n, L, S, D, symm=False):
                 res["optimal"] = True
                 break
 
-            if status == unknown or (time()-start_time) >= 300:
-                res["time"] = math.floor(solve_time) if math.floor(solve_time) == 300 else 300
+            if status == unknown or (time()-start_time) >= timeout:
+                res["time"] = math.floor(solve_time) if math.floor(solve_time) == timeout else timeout
                 break
             
             model = solver.model()

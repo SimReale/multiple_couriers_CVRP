@@ -1,7 +1,7 @@
 import os, sys
 import check_solution
 from CP.solver import solve as cp_solve
-#from SAT.solver import solve as sat_solve
+from SAT.solver import solve as sat_solve
 #from SMT.solver import solve as smt_solve
 from MIP.solver import solve as mip_solve
 
@@ -12,21 +12,30 @@ def run_models(instances, approaches, solver_name= None, model_name= None, timeo
 
     approach_map = {
         'CP' : cp_solve,
-        #'SAT' : sat_solve, 
+        'SAT' : sat_solve, 
         #'SMT' : smt_solve,
         'MIP' : mip_solve
     }
 
-    try:
-        
-        for approach in approaches:
+    for approach in approaches:
             #create results directory
             if not os.path.exists(RESULTS_DIR + approach):
                 os.makedirs(RESULTS_DIR + approach)
 
             print(approach_map[approach])
 
-            approach_map[approach](instances, model_name, solver_name)
+            approach_map[approach](instances, solver_name, model_name)
+
+    try:
+        
+        '''for approach in approaches:
+            #create results directory
+            if not os.path.exists(RESULTS_DIR + approach):
+                os.makedirs(RESULTS_DIR + approach)
+
+            print(approach_map[approach])
+
+            approach_map[approach](instances, solver_name, model_name)'''
 
     except:
         print('Incorrect parameters given')
