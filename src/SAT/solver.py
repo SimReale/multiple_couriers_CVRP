@@ -19,7 +19,7 @@ def solve(instances, model_name= None, solver_name= None, timeout = 300):
         results["MTZ_model"] = res
 
         instance_number = re.search(r'\d+', inst)
-        result_filename = f"results/SAT/{instance_number.group()}.json"
+        result_filename = f"res/SAT/{instance_number.group()}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)
 

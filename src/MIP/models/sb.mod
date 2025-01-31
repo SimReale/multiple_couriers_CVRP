@@ -17,18 +17,18 @@ var x {V, V, COURIERS} binary; #xijc = 1 iﬀ vehicle c moves from node i to j; 
 var y {ITEMS, COURIERS} binary; #yic = 1 iﬀ vehicle c visits node i ; 0 otherwise
 var u {V, COURIERS} >= 1 <= n + 1; #uic is the cumulated demand serviced by vehicle c when arriving at node i
 
-#Objective
-var MaxD{i in V};  
-subject to MaxD_def{i in V, j in V}: MaxD[i] >= D[i, j];  
-
+#Upper and Lower Bound variables and constraints
+var UpBound{i in V};  
 var LoBound;
+subject to MaxUp_def{i in V, j in V}: UpBound[i] >= D[i, j];  
 subject to MaxLo_def{i in ITEMS}: LoBound >= D[n+1, i] + D[i, n+1];
 
-#Objective
+#Objective variable and relative constraints
 var max_distance;
 subject to ObjLowerBound: max_distance >= LoBound;
 subject to ObjUpperBound: max_distance <= sum{i in V} MaxD[i]; 
-subject to linearize_max_distance {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,c] <= max_distance;
+
+subject to objective_function {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,c] <= max_distance;
 
 minimize max_distance_obj: max_distance;
 
@@ -62,6 +62,6 @@ subject to Coupling {i in ITEMS, c in COURIERS}: sum {j in V} x[i,j,c] = y[i,c];
 #Miller, Tucker and Zemlin constraint
 subject to MTZ {c in COURIERS, i in ITEMS, j in V: i != j}: u[i, c] - u[j, c] + 1 <= (n)*(1- x[i, j, c]);
 
-#symmetry breaking constraints
+################### symmetry breaking ###################
 subject to SymmetryBreak {c1 in COURIERS, c2 in COURIERS: c1 < c2 && l[c1] == l[c2]}:
     sum{i in ITEMS} i * y[i,c1] <= sum{i in ITEMS} i * y[i,c2];

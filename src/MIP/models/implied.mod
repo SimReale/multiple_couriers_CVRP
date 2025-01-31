@@ -17,18 +17,18 @@ var x {V, V, COURIERS} binary; #xijc = 1 iﬀ vehicle c moves from node i to j; 
 var y {ITEMS, COURIERS} binary; #yic = 1 iﬀ vehicle c visits node i ; 0 otherwise
 var u {V, COURIERS} >= 1 <= n + 1; #uic is the cumulated demand serviced by vehicle c when arriving at node i
 
-#Upper and Lower Bound
-var MaxD{i in V};  
-subject to MaxD_def{i in V, j in V}: MaxD[i] >= D[i, j];  
-
+#Upper and Lower Bound variables and constraints
+var UpBound{i in V};  
 var LoBound;
+subject to MaxUp_def{i in V, j in V}: UpBound[i] >= D[i, j];  
 subject to MaxLo_def{i in ITEMS}: LoBound >= D[n+1, i] + D[i, n+1];
 
-#Objective
+#Objective variable and relative constraints
 var max_distance;
 subject to ObjLowerBound: max_distance >= LoBound;
 subject to ObjUpperBound: max_distance <= sum{i in V} MaxD[i]; 
-subject to linearize_max_distance {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,c] <= max_distance;
+
+subject to objective_function {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,c] <= max_distance;
 
 minimize max_distance_obj: max_distance;
 
@@ -36,15 +36,6 @@ minimize max_distance_obj: max_distance;
 
 #A customer is visited by exactly one vehicle
 subject to Customer_once {i in ITEMS}: sum {c in COURIERS} y[i, c] = 1; 
-
-#every location must be visited exactly once
-#redundancy implied from y[i, c] = 1 and Coupling
-subject to VisitedOnce_row {i in ITEMS}: sum {j in V, c in COURIERS} x[i, j, c] = 1;
-#visited once columns lower the performances
-
-#every courier leave the depot
-#implied
-subject to All_depart {c in COURIERS}: sum {i in ITEMS} y[i, c] >= 1;
 
 #load carried lower than the capacity of the courier
 subject to Load_carried {c in COURIERS}: sum {i in ITEMS} y[i, c]*s[i] <= l[c];
@@ -63,3 +54,13 @@ subject to Coupling {i in ITEMS, c in COURIERS}: sum {j in V} x[i,j,c] = y[i,c];
 
 #Miller, Tucker and Zemlin constraint
 subject to MTZ {c in COURIERS, i in ITEMS, j in V: i != j}: u[i, c] - u[j, c] + 1 <= (n)*(1- x[i, j, c]);
+
+################### implied ###################
+
+#every location must be visited exactly once redundancy implied from y[i, c] = 1 and Coupling
+subject to VisitedOnce_row {i in ITEMS}: sum {j in V, c in COURIERS} x[i, j, c] = 1;
+#visited once columns lower the performances
+
+#every courier leave the depot
+#implied
+subject to All_depart {c in COURIERS}: sum {i in ITEMS} y[i, c] >= 1;
