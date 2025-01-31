@@ -1,5 +1,5 @@
 from SAT.sat_utils import *
-from SAT.path_mtz import MTZ_model
+from SAT.mtz_one_hot import MTZ_model
 import json
 import re
 
@@ -15,7 +15,7 @@ def solve(instances, model_name= None, solver_name= None, timeout = 300):
         #for model in models:
         results = {}
         m, n, L, S, D = read_instance(inst)
-        res = MTZ_model(m, n, L, S, D, timeout)
+        res = MTZ_model(m, n, L, S, D, timeout, symm=True)
         results["MTZ_model"] = res
 
         instance_number = re.search(r'\d+', inst)
