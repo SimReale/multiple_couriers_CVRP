@@ -16,19 +16,19 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
     parsed_instances = sorted(os.listdir(DATA_DIR))
 
     if solver_name:
-        solver_list = [solver_name]
+        solver_list = solver_name
     else:
         solver_list = ['gecode',
                        'chuffed'
                        ]
 
-    for inst in parsed_instances:
+    for inst_number, inst in enumerate(parsed_instances, 1):
         print(f"Solving instance: {inst}")
         results = {}
         for slv in solver_list:
 
             if model_name:
-                model_list = [f'{model_name}.mzn']
+                model_list = [f'{m}.mzn' for m in model_name]
             else:
                 model_list = os.listdir(f'CP/models/{slv}')
 
@@ -65,7 +65,16 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                         "obj" : result.objective,
                         "sol" : result_path
                         }
+                else:
+                    results[mdl] = {
+                        "time" : timeout,
+                        "optimal" : False,
+                        "obj" : None,
+                        "sol" : None
+                        }
 
-        result_filename = f"results/CP/{inst.removesuffix('.dzn')}.json"
+                
+
+        result_filename = f"results/CP/{inst_number}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)

@@ -22,6 +22,7 @@ def run_models(instances, approaches, solver_name= None, model_name= None, timeo
             if not os.path.exists(RESULTS_DIR + approach):
                 os.makedirs(RESULTS_DIR + approach)
 
+<<<<<<< HEAD
             print(approach_map[approach])
 
             approach_map[approach](instances, solver_name, model_name)
@@ -36,9 +37,12 @@ def run_models(instances, approaches, solver_name= None, model_name= None, timeo
             print(approach_map[approach])
 
             approach_map[approach](instances, solver_name, model_name)'''
+=======
+            approach_map[approach](instances, solver_name, model_name)
+>>>>>>> 20a7eaa514990323662469446a8b047df4c11523
 
     except:
-        print('Incorrect parameters given')
+        print('\nIncorrect parameters given\n')
 
 if __name__ == "__main__":
 
@@ -50,7 +54,7 @@ if __name__ == "__main__":
         instances = os.listdir(directory)
         instances.sort()
         approaches = [
-                      #'CP', 
+                      #'CP',
                       #'SAT', 
                       #'SMT', 
                       'MIP'
@@ -61,8 +65,8 @@ if __name__ == "__main__":
 
         instances_name = [f'{inst}.dat' for inst in args[0].split(',')]
         approach = [args[1].upper()]
-        solver_name = args[2]
-        model_name = args[3]
+        solver_name = [args[2]]
+        model_name = [args[3]]
 
         run_models(instances_name, approach, solver_name, model_name)
 

@@ -42,7 +42,7 @@ def instance_converter(instances, output_directory):
         with open(output_file_path, "w") as output_file:
             output_file.writelines(output_lines)
 
-def solve(instances, model_name= None, solver_name= None, timeout = 300):
+def solve(instances, solver_name= None, model_name= None, timeout = 300):
 
     DATA_DIR = 'MIP/instances'
     if not os.path.exists(DATA_DIR):
@@ -53,7 +53,7 @@ def solve(instances, model_name= None, solver_name= None, timeout = 300):
     instances.sort()
 
     if solver_name:
-        solvers = [solver_name]
+        solvers = solver_name
     else:
         solvers = [
         'scip', 
@@ -62,13 +62,13 @@ def solve(instances, model_name= None, solver_name= None, timeout = 300):
         ]
 
     if model_name:
-        models = [f'{model_name}.mod']
+        models = [f'{m}.mod' for m in model_name]
     else:
         models = os.listdir('MIP/models')
 
-    #models = [mod for mod in models if mod != 'two_index.mod']
+    models = [mod for mod in models if mod != 'two_index.mod']
 
-    for inst in instances:
+    for inst_number, inst in enumerate(instances, 1):
 
         results = {}
         for mdl in models:
@@ -128,7 +128,7 @@ def solve(instances, model_name= None, solver_name= None, timeout = 300):
 
                     print(f'instance: {inst} {mdl.removesuffix(".mod")+"_"+solver}: {results[mdl.removesuffix(".mod")+"_"+solver]}\n')
 
-        result_filename = f"results/MIP/{inst.removesuffix('.dat')}.json"
+        result_filename = f"results/MIP/{inst_number}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)
 

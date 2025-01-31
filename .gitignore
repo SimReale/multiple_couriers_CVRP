@@ -176,3 +176,4 @@ src/MIP/instances
 src/CP/data
 results
 src/MIP/models/two_index.mod
+output_table.tex
