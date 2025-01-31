@@ -1,7 +1,8 @@
-from amplpy import AMPL, add_to_path
+from amplpy import AMPL
 import os
 import math
 import json
+import re
 import time
 
 def instance_converter(instances, output_directory):
@@ -68,7 +69,7 @@ def solve(instances, solver_name= None, model_name= None, timeout = 300):
 
     models = [mod for mod in models if mod != 'two_index.mod']
 
-    for inst_number, inst in enumerate(instances, 1):
+    for inst in instances:
 
         results = {}
         for mdl in models:
@@ -128,7 +129,8 @@ def solve(instances, solver_name= None, model_name= None, timeout = 300):
 
                     print(f'instance: {inst} {mdl.removesuffix(".mod")+"_"+solver}: {results[mdl.removesuffix(".mod")+"_"+solver]}\n')
 
-        result_filename = f"results/MIP/{inst_number}.json"
+        instance_number = re.search(r'\d+', inst)
+        result_filename = f"results/MIP/{instance_number.group()}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)
 

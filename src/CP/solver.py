@@ -3,6 +3,7 @@ from datetime import timedelta
 import json, os
 from CP.parser_CP import parse
 import time, math
+import re
 
 def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
 
@@ -22,7 +23,7 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                        'chuffed'
                        ]
 
-    for inst_number, inst in enumerate(parsed_instances, 1):
+    for inst in parsed_instances:
         print(f"Solving instance: {inst}")
         results = {}
         for slv in solver_list:
@@ -74,7 +75,7 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                         }
 
                 
-
-        result_filename = f"results/CP/{inst_number}.json"
+        instance_number = re.search(r'\d+', inst)
+        result_filename = f"results/CP/{instance_number.group()}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)
