@@ -28,7 +28,7 @@ subject to MaxLo_def{i in ITEMS}: LoBound >= D[n+1, i] + D[i, n+1];
 var max_distance;
 
 subject to ObjLowerBound: max_distance >= LoBound;
-subject to ObjUpperBound: max_distance <= sum{i in V} MaxD[i]; 
+subject to ObjUpperBound: max_distance <= sum{i in V} UpBound[i]; 
 
 subject to objective_function {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,c] <= max_distance;
 

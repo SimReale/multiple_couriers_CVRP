@@ -3,7 +3,7 @@ from SAT.mtz_one_hot import MTZ_model
 import json
 import re
 
-def solve(instances, model_name= None, solver_name= None, timeout = 300):
+def solve(instances, solver_name= None, model_name= None, timeout = 300):
     
     #abilitate whether you have multiple models
     # if model_name:
@@ -19,7 +19,7 @@ def solve(instances, model_name= None, solver_name= None, timeout = 300):
         results["MTZ_model"] = res
 
         instance_number = re.search(r'\d+', inst)
-        result_filename = f"res/SAT/{instance_number.group()}.json"
+        result_filename = f"res/SAT/{int(instance_number.group())}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)
 

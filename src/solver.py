@@ -42,10 +42,10 @@ if __name__ == "__main__":
         instances = os.listdir(directory)
         instances.sort()
         approaches = [
-                      #'CP',
+                      'CP',
                       #'SAT', 
                       #'SMT', 
-                      'MIP'
+                      #'MIP'
                       ]
         run_models(instances, approaches)
 
@@ -58,4 +58,4 @@ if __name__ == "__main__":
 
         run_models(instances_name, approach, solver_name, model_name)
 
-    check_solution.main(('check_solution', 'instances', 'results/'))
+    check_solution.main(('check_solution', 'instances', 'res/'))

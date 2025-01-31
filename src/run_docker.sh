@@ -1,6 +1,6 @@
 # Define the paths
-HOST_RESULTS_DIR="../results"  # Path to the results directory on the host machine
-CONTAINER_RESULTS_DIR="/app/results"  # Path to the results directory in the container
+HOST_RESULTS_DIR="../res"  # Path to the results directory on the host machine
+CONTAINER_RESULTS_DIR="/app/res"  # Path to the results directory in the container
 
 # name of the docker
 IMAGE_NAME="$1"

@@ -9,7 +9,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y python3 python3-venv python3-pip
 
-VOLUME /app/results/
+VOLUME /app/res/
 
 ENV PATH="/app/venv/bin:$PATH"
 RUN python3 -m venv venv
