@@ -41,6 +41,12 @@ def extract_solution(model, paths, num_couriers, num_items, depot):
     
     return solution if len(all_items) == num_items else None
 
+def Max(vec):
+    max = vec[0]
+    for v in vec[1:]:
+        max = If(v > max, v, max)
+    return max
+
 
 def SMT_model(num_couriers, num_items, load_sizes, item_sizes, distances, sb=None, timeout = 300): 
         
@@ -59,21 +65,21 @@ def SMT_model(num_couriers, num_items, load_sizes, item_sizes, distances, sb=Non
     for i in range(num_items):
         solver.add(And(order[i] >= 0, order[i] <= num_items-1))
 
-    # Each customer should be visited only once
+
     for i in range(num_couriers):
         for k in range(num_items):
-            solver.add(Implies(Sum([paths[i][j][k] for j in range(num_items+1)]) == 1, Sum([paths[i][k][j] for j in range(num_items+1)]) == 1))
-    
-    for k in range(num_items):      
-        solver.add(And(Sum([paths[i][j][k] for i in range(num_couriers) for j in range(num_items + 1)]) == 1,
-            Sum([paths[i][k][j] for j in range(num_items + 1) for i in range(num_couriers)]) == 1))
-    
+            solver.add(Sum([paths[i][j][k] for j in range(num_items+1)]) == Sum([paths[i][k][j] for j in range(num_items+1)]))
+
+    for k in range(num_items):
+        solver.add(Sum([paths[i][j][k] for i in range(num_couriers) for j in range(num_items+1)]) == 1)
+
+
     # Subtour constraint
     for i in range(num_couriers):
         for j in range(num_items):
             for k in range(num_items):
                 solver.add(Implies(paths[i][j][k], order[j] < order[k]))
-    
+
     # Capacity constraint
     for i in range(num_couriers):
         total_load = Sum([paths[i][j][k] * item_sizes[k] for j in range(num_items+1) for k in range(num_items)])
@@ -94,9 +100,7 @@ def SMT_model(num_couriers, num_items, load_sizes, item_sizes, distances, sb=Non
     num_nodes = num_items + 1
     depot = num_nodes - 1
     lower_bound = max([distances[depot][j] + distances[j][depot] for j in range(num_nodes - 1)])    
-    max_distances = [max(distances[i][:-1]) for i in range(num_items)]
-    max_distances.sort()
-    upper_bound = sum(max_distances) + max(distances[depot]) + max([distances[j][depot] for j in range(num_items)])
+    upper_bound = sum([max(distances[i]) for i in range(num_nodes)])
 
     solver.add(max_dist >= lower_bound)
     solver.add(max_dist <= upper_bound)

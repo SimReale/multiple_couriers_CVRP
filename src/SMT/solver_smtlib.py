@@ -44,8 +44,6 @@ def optimize_max_dist(solver, smt_file_path, output_dir, timeout):
     upper = initial_upper
     elapsed_time = timer() - start_time
     remaining_time = timeout - elapsed_time
-    num = 50
-
 
     while lower <= upper and remaining_time > 0:
         current_mid = (lower + upper) // 2
@@ -72,11 +70,9 @@ def optimize_max_dist(solver, smt_file_path, output_dir, timeout):
         with open(temp_file, 'w') as f:
             f.write(temp_content)
 
-        print(remaining_time)
         solution = solve_smt_file(solver, temp_file, remaining_time)
         actual_time_taken = solution['time']
         remaining_time -= actual_time_taken
-        print(remaining_time)
         os.remove(temp_file)
         time  = timeout - remaining_time
 
@@ -142,7 +138,6 @@ def solve_smt_file(solver, smt_file, timeout):
             result['time'] = timeout  # Measured real time
             logger.warning(f"Timeout reached for {os.path.basename(smt_file)}")
             result['status'] = 'timeout'   
-            print(stdout)
 
 
         return result

@@ -22,9 +22,9 @@
         "obj": 14,
         "sol": [
             [
-                1,
+                4,
                 3,
-                4
+                1
             ],
             [
                 2,
@@ -34,7 +34,7 @@
         ]
     },
     "z3": {
-        "time": 1,
+        "time": 0,
         "optimal": true,
         "obj": 14,
         "sol": [
@@ -51,7 +51,7 @@
         ]
     },
     "cvc4": {
-        "time": 2,
+        "time": 1,
         "optimal": true,
         "obj": 14,
         "sol": [
@@ -68,7 +68,7 @@
         ]
     },
     "cvc5": {
-        "time": 7,
+        "time": 1,
         "optimal": true,
         "obj": 14,
         "sol": [

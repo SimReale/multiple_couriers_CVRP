@@ -37,12 +37,11 @@ def generate_smt_lib(num_couriers, num_items, load_sizes, item_sizes, distances,
     # Each customer should be visited only once
     for i in range(num_couriers):
         for k in range(num_items):
-            solver.add(Implies(Sum([paths[i][j][k] for j in range(num_items+1)]) == 1, Sum([paths[i][k][j] for j in range(num_items+1)]) == 1))
-    
-    for k in range(num_items):      
-        solver.add(And(Sum([paths[i][j][k] for i in range(num_couriers) for j in range(num_items + 1)]) == 1,
-            Sum([paths[i][k][j] for j in range(num_items + 1) for i in range(num_couriers)]) == 1))
-    
+            solver.add(Sum([paths[i][j][k] for j in range(num_items+1)]) == Sum([paths[i][k][j] for j in range(num_items+1)]))
+
+    for k in range(num_items):
+        solver.add(Sum([paths[i][j][k] for i in range(num_couriers) for j in range(num_items+1)]) == 1)
+
     # Subtour constraint
     for i in range(num_couriers):
         for j in range(num_items):
@@ -61,7 +60,6 @@ def generate_smt_lib(num_couriers, num_items, load_sizes, item_sizes, distances,
         solver.add(And(Sum([paths[i][num_items][k] for k in range(num_items)]) == 1, Sum([paths[i][j][num_items] for j in range(num_items)]) == 1))
 
     # Define the objective function
-    #solver.add(max([Sum([paths[i][j][k] * distances[j][k] for j in range(num_items+1) for k in range(num_items+1)]) for i in range(num_couriers)]))
     sums = [Sum([paths[i][j][k] * distances[j][k]
              for j in range(num_items+1)
              for k in range(num_items+1)])
