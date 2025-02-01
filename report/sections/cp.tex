@@ -108,30 +108,30 @@ The models are evaluated using as solvers both \textit{Gecode} and \textit{Chuff
         \begin{tabular}{c|ccccccc}
             \toprule
             & \multicolumn{4}{c}{Gecode} & \multicolumn{3}{c}{Chuffed} \\
-            \cmidrule(lr){2-5} \cmidrule(lr){6-8}
+            %\cmidrule(lr){2-5} \cmidrule(lr){6-8}
             Id & \rot{base}        & \rot{implied}     & \rot{implied_lns} & \rot{SB}          & \rot{base}        & \rot{implied_rs}  & \rot{SB}          \\ 
             \midrule
             1  & \textbf{14}       & \textbf{14}       & 14                & 14                & \textbf{14}       & \textbf{14}       & \textbf{14}       \\ 
             2  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
             3  & \textbf{12}       & \textbf{12}       & 12                & 18                & \textbf{12}       & \textbf{12}       & \textbf{12}       \\
             4  & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      \\
-            5  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
-            6  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
-            7  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
-            8  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
-            9  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
-            10 & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\ 
-            11 & 594            & 597           & 528           & 490           & 503           & --            & 963           & --            & 756           & 1669          & 1189          & 1081          \\ 
-            12 & 449            & 428           & 375           & \textbf{346}  & 348           & --            & 833           & 1061          & 785           & 1605          & 706           & 899           \\ 
-            13 & 648            & 704           & 656           & 616           & 610           & 624           & 1126          & 914           & 1126          & 1734          & 584           & 746           \\ 
-            14 & 725            & 972           & 794           & 715           & 792           & --            & 1449          & --            & 1089          & --            & --            & --            \\ 
-            15 & 659            & 901           & 765           & 738           & 803           & --            & 1292          & --            & --            & --            & --            & --            \\ 
-            16 & 451            & 294           & \textbf{286}  & \textbf{286}  & \textbf{286}  & --            & 487           & 636           & 694           & 998           & 467           & 363           \\ 
-            17 & 1324           & 1468          & 1119          & 1076          & 1155          & --            & --            & --            & --            & --            & --            & --            \\ 
-            18 & 691            & 806           & 675           & 662           & 620           & --            & 1321          & --            & 1779          & --            & --            & --            \\ 
-            19 & 554            & 412           & 336           & \textbf{334}  & \textbf{334}  & --            & 795           & 1079          & 765           & 1521          & 623           & 577           \\ 
-            20 & 1139           & 1369          & 1104          & 1068          & 1075          & --            & --            & --            & --            & --            & --            & --            \\ 
-            21 & 779            & 687           & 600           & 516           & 529           & --            & 2104          & 2140          & 993           & 2115          & 1226          & --            \\ 
+            5  & \textbf{206}      & \textbf{206}      & \textbf{206}      & \textbf{206}      & \textbf{206}      & \textbf{206}      & \textbf{206}      \\
+            6  & \textbf{322}      & \textbf{322}      & \textbf{322}      & \textbf{322}      & \textbf{322}      & \textbf{322}      & \textbf{322}      \\
+            7  & \textbf{167}      & \textbf{167}      & \textbf{167}      & \textbf{167}      & \textbf{167}      & \textbf{167}      & \textbf{167}      \\
+            8  & \textbf{186}      & \textbf{186}      & \textbf{186}      & \textbf{186}      & \textbf{186}      & \textbf{186}      & \textbf{186}      \\
+            9  & \textbf{436}      & \textbf{436}      & \textbf{436}      & \textbf{436}      & \textbf{436}      & \textbf{436}      & \textbf{436}      \\
+            10 & \textbf{244}      & \textbf{244}      & \textbf{244}      & \textbf{244}      & \textbf{244}      & \textbf{244}      & \textbf{244}      \\ 
+            11 & 847               & 847               & 388               & 426               & --                & 913               & 913               \\ 
+            12 & 457               & 402               & \textbf{346}      & \textbf{346}      & --                & \textbf{346}      & \textbf{346}      \\ 
+            13 & 1316              & 1316              & 496               & 524               & --                & 1102              & 1102              \\ 
+            14 & 1232              & 1224              & 748               & 782               & --                & 1299              & 1304              \\ 
+            15 & 1088              & 1088              & 650               & --                & --                & 1016              & 1016              \\ 
+            16 & 496               & 496               & \textbf{286}      & \textbf{286}      & --                & \textbf{286}      & \textbf{286}      \\ 
+            17 & 1435              & 1467              & 941               & --                & --                & 1428              & 1449              \\ 
+            18 & 985               & 801               & 554               & 638               & --                & 1133              & 1125              \\ 
+            19 & 476               & 476               & \textbf{334}      & \textbf{334}      & --                & \textbf{334}      & \textbf{334}      \\ 
+            20 & 1784              & 1809              & 896               & --                & --                & 1319              & 1319              \\ 
+            21 & 635               & 756               & 414               & 501               & --                & 1085              & 1077              \\ 
             \bottomrule
         \end{tabular}
     }
