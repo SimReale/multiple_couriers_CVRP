@@ -62,16 +62,13 @@ def generate_smt_lib(num_couriers, num_items, load_sizes, item_sizes, distances,
 
     # Define the objective function
     #solver.add(max([Sum([paths[i][j][k] * distances[j][k] for j in range(num_items+1) for k in range(num_items+1)]) for i in range(num_couriers)]))
-
     sums = [Sum([paths[i][j][k] * distances[j][k]
              for j in range(num_items+1)
              for k in range(num_items+1)])
         for i in range(num_couriers)]
 
-    # Crea l'espressione che rappresenta il massimo fra tutte queste somme:
     max_expr = Max(sums)
 
-    # Impone che max_dist sia uguale a max_expr:
     solver.add(max_dist == max_expr)
 
 
