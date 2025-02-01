@@ -74,7 +74,6 @@ def parse_output(output, time):
                         for node in (t['from'], t['to'])}
             if all_nodes:
                 depot = max(all_nodes)
-                print('depot' + str(depot))
                 for _, transitions in couriers.items():
                     path = []
                     current_node = depot
