@@ -3,20 +3,17 @@ from SAT.mtz_one_hot import MTZ_model
 import json
 import re
 
-def solve(instances, solver_name= None, model_name= None, timeout = 300):
-    
-    #abilitate whether you have multiple models
-    # if model_name:
-    #     models = [model_name]
-    # else:
-    #     models = os.listdir('SAT/models')
+def solve(instances, model_name= None, solver_name= None, timeout = 300):
 
-    for inst in instances:
-        #for model in models:
+    for instance_number, inst in enumerate(instances, 1):
+        
         results = {}
         m, n, L, S, D = read_instance(inst)
-        res = MTZ_model(m, n, L, S, D, timeout, symm=True)
-        results["MTZ_model"] = res
+        res = MTZ_model(m, n, L, S, D, timeout)
+        results["mtz_base"] = res
+
+        res_sb = MTZ_model(m, n, L, S, D, timeout, symm=True)
+        results["mtz_symm"] = res_sb
 
         instance_number = re.search(r'\d+', inst)
         result_filename = f"res/SAT/{int(instance_number.group())}.json"

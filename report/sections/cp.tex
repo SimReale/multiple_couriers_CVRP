@@ -1,91 +1,126 @@
-\section{CP model}
+\section{CP}
+The CP models are set in an \textit{incremental way}, starting from a base structure with the foundamental constraints of the problem and then adding implied and symmetry breaking ones. After fixing the models, a final exploration on the search strategy is provided to optimize the solving procedure.
+
 
 
 \subsection{Decision variables}
-
-The CP model relies on the following decision variables:
+The CP models are based on the following decision variables:
 \begin{itemize}
-    \item For each package $p$, $A_p \in [1, m]$ (\texttt{assignments[p]} in MiniZinc) indicates which courier delivers it. More specifically, $A_p = c$ iff the package $p$ is delivered by the courier $c$.
+    \item $x_{c, i} \in NODES$, with $c \in COURIERS$ and $i \in NODES$, which defines the construction of the paths for each courier, meaning that $x_{c, i} = j$ if the courier $c$ goes from the node $i$ to $j$, where $n+1$ is the \textit{depot}.
     
-    \item For each courier $c$, $P_{c, d}$ (\texttt{path[c, d]} in MiniZinc) is defined following \Cref{eq:path_def}.
+    \item $bins_i \in COURIERS$, with $i \in ITEMS$, where setting $bins_i = c$ means that the item $i$ is assigned to the courier $c$.
+    
+    \item $load_c \in [min\_load\ ..\ max\_load]$, with $c \in COURIERS$, that is an \textit{auxiliary variable} used to assign the load carried by each courier in the solution, where $min\_load$ and $max\_load$ are respectively the \textit{lower bound} and the \textit{upper bound} of the load values:
+    \begin{quote}
+        \centering
+        $min\_load = min(s)$, $max\_load = max(l)$.
+    \end{quote}
 \end{itemize}
 
 
 
 \subsection{Objective function}
-Once the route of each courier has been found, the objective function is computed as follows:
+The \textit{objective function} is defined through the distance matrix $D$ given as input and the paths $x$ in the following way:
 \begin{equation}
-    \max_{c \in [1, m]} \sum_{\substack{d \in [1, n+1]:\\P_{c, d} \neq d}} D_{d, P_{c, d}}
+    \max_{c \in COURIERS} \left( \sum_{i \in NODES:\ x_{c, i} \neq i} D_{i, x_{c, i}} \right)
 \end{equation}
+
 
 
 \subsection{Constraints}
+The main problem structure is defined through the following constraints.
+\begin{itemize}
+    \item \texttt{bin\_packing\_capa}
 
-To respect the capacity limit of each courier, the following constraint can be defined:
+        This global constraint taken from the MiniZinc library ensures that the actual load carried by each courier, given by the sum of its item sizes, is lower than its overall capacity. Mathematically speaking, it is defined by:
+        \begin{equation}
+        \forall c \in COURIERS: \left( \sum_{i \in ITEMS:\ bins_i = c} s_i \right) \leq l_c.
+        \end{equation}
+        The global version has been preferred to the explicit one, due to a more optimized implementation provided by MiniZinc for performances.
+    
+    \item \textbf{Couriers assignment and Channelling constraint}
+
+        It defines how the items must be assigned to the couriers and links the $bins$ and $x$ matrices in the following way:
+        \begin{equation}
+            \forall c \in COURIERS,
+            \forall i \in ITEMS: 
+            \begin{cases}
+                x_{c, i} = i    & \text{if $bins_i \neq c$} \\
+                x_{c, i} \neq i & \text{if $bins_i = c$} 
+            \end{cases}
+        \end{equation}
+    
+    \item \texttt{subcircuit}
+
+        Again, it is a MiniZinc global constraint, that models the fact that $x$ is the \textit{successors matrix of each node}, guaranteeing that each courier forms an Hamiltonian cycle through its nodes assignments. Therefore, this contraint is applied on each row of the $x$ matrix.
+
+    \item \textbf{Couriers departure}
+
+        It states explicitly that each courier must take at least one pack and not stay in the depot, due to performance optimization:
+        \begin{equation}
+            \forall c \in COURIERS:\ x_{c, n+1} \neq n+1 
+        \end{equation}
+
+\end{itemize}
+
+\subsubsection{Implied constraints}
+The only implied constraint has been added to the model to improve the performance through the introduction of the variable $load$ and is \texttt{bin\_packing\_load}. It assigns the load of each courier as the sum of the items' sizes $s$, depending on the assignments in $bins$ and is defined mathematically as:
 \begin{equation}
-    \forall c \in [1, m]: \sum_{p \in [1, n]: A_p = c} s_p \leq l_c 
+    \forall c \in COURIERS: \left( \sum_{i \in ITEMS:\ bins_i = c} s_i \right) = load_c.
 \end{equation}
-In MiniZinc, the global constraint \texttt{bin\_packing\_capa} also models this. In our experiments, we did not notice significant differences between the two formulations and decided to use the latter following the best practice of preferring global constraints.
-
-To model the route, the following constraints have to be imposed:
-\begin{equation}
-    \label{eq:cp_constr_route_depot}
-    \forall c \in [1, m]: 
-    \begin{cases}
-        P_{c, n+1} = n+1    & \text{if $\nexists p \in [1, n]: A_p = c$} \\ 
-        P_{c, n+1} \neq n+1 & \text{if $\exists p \in [1, n]: A_p = c$} 
-    \end{cases}
-\end{equation}
-
-\begin{equation}
-    \label{eq:cp_constr_route_packs}
-    \forall c \in [1, m],
-    \forall p \in [1, n]: 
-    \begin{cases}
-        P_{c, p} = p    & \text{if $A_p \neq c$} \\
-        P_{c, p} \neq p & \text{if $A_p = c$} 
-    \end{cases}
-\end{equation}
-
-The constraint defined in \Cref{eq:cp_constr_route_depot} imposes that, for each courier, the depot has a successor only if that courier delivers at least a package. On the same note, \Cref{eq:cp_constr_route_packs} imposes that only the packages delivered by a specific courier have a successor in the route.
-Moreover, it is necessary to impose that the route defined by $P_c$ is a Hamiltonian cycle that passes through the relevant destinations. In MiniZinc, this can be easily modelled by using the global constraint \texttt{subcircuit}.
-
 
 \subsubsection{Symmetry breaking constraints}
-
-For CP, we experimented with both symmetry breaking constraints defined in \Cref{eq:cp_symm_amount,eq:cp_symm_packs}. Moreover, we experimented with a stronger version of these constraints that is applied between two couriers whose actual loads are interchangeable. This is defined by the following condition:
+Experimental trials showed that too much symmetry breaking constraints cause the performance to worsen, so only one symmetry breaking about the load is left in the related model. In particular, it is the \texttt{lex\_lesseq}, which imposes the lexicographic ordering on the couriers assignments of two items if the items have the same size and the couriers have the same load carried:
+\begin{quote}
+    \centering
+    $\forall i \in ITEMS, \forall j \in ITEMS:$
+\end{quote}
 \begin{equation}
-    \label{eq:cp_symm_strong}
-    \max\left\{ L_{c_1}, L_{c_2} \right\} \leq \min\left\{ l_{c_1}, l_{c_2} \right\}
+    (s_i = s_j \land load[bins_i] = load[bins_j]) \implies lex\_lesseq([bins_i,\ bins_j])
 \end{equation}
-where $L_c$ is the actual load carried by the courier $c$.
 
 
 
 \subsection{Validation}
 
 \subsubsection{Experimental design}
+The models are evaluated using as solvers both \textit{Gecode} and \textit{Chuffed}, with ad-hoc search strategies, in order to fully exploit the potential of each solver. After making different experiments on the variable assignation, it came up that $x$ is the variable matrix that most influences the exploration of the search tree. However, different choices have been taken for Gecode and Chuffed, depending on the their availability of \textit{variable selection} and \textit{domain selection} strategies.
+\begin{itemize}
+    \item \textbf{Gecode:}
 
-We experimented variations of our models using as solvers Gecode, Chuffed, and OR-Tools. The search order for all models assigns the packages (\texttt{assignments}) first and then searches for the route (\texttt{path}) of each courier in decreasing order of capacity. Regarding search, we experimented several combinations of variable selection and assignment strategies on a subset of instances and only used the best ones to obtain the final complete results.
+        The exploration of the search tree is managed by the \texttt{int\_default\_search}, which is the type of integer search that is properly suited on the Gecode solver. It turned out that the best annotation choices for this strategy are \texttt{afc\_size\_max} for variables, together with a random choice for the value assignment (\texttt{indomain\_random}). 
 
+        In addition, a restart strategy has been added, based on the \textit{Luby sequence}, in combination with the \textit{Local Neighborhood Search (LNS)}. From previous experiments, we noticed that low values of the retain percentage did not influence much the exploration. Therefore, it has been set to the $80\%$, referring to the $x$ matrix.
+
+    \item \textbf{Chuffed:}
+
+        The search strategy is split in two parts. In the beginning, the last column of $x$, containing the routes \textit{depot-item}, is assigned in order to address the exploration starting from the first items to deliver. Then, the rest of the path is assigned consequently.
+
+        The best variable selection strategy found is \texttt{first\_fail} on both the steps explained above, combined with a restart policy that follows the \textit{Luby sequence}.
+\end{itemize}
 
 \subsubsection{Experimental results}
-
-From some preliminary experiments, we observed that first fail and largest domain with weighted degree (\texttt{dom\_w\_deg}) are the best performing search strategies. Therefore, we performed the full experiments using as search strategy \texttt{dom\_w\_deg} for \texttt{assignments} and \texttt{first\_fail} for \texttt{path}, respectively. Moreover, between the two symmetry breaking constraints, we observed that the lexicographic ordering defined in \Cref{eq:cp_symm_packs} has better performances and therefore present only those results. The objective values found by the most significant models are reported in \Cref{tab:cp_results}.
 
 \begin{table}[ht]
     \caption{Selected subset of CP results. Results in \textbf{bold} are solved to optimality. Instances that are all solved to optimality have been omitted.}
     \label{tab:cp_results}
     \centerline{
-        \begin{tabular}{c|cccccccccccc}
+        \begin{tabular}{c|ccccccc}
             \toprule
-            & \multicolumn{6}{c}{Gecode} & \multicolumn{3}{c}{Chuffed} & \multicolumn{3}{c}{OR-Tools} \\
-            \\[-3ex] % Remove vertical line gap
-            \cmidrule(lr){2-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
-            Id & \rot{plain}    & \rot{luby}    & \rot{lns80}   & \rot{lns95}   & \rot{\makecell[l]{lns95\\[-0.3em]\small+ SB \eqref{eq:cp_symm_packs}}} & \rot{\makecell[l]{lns95\\[-0.3em]\small+ SB \eqref{eq:cp_symm_packs}\eqref{eq:cp_symm_strong}}} & \rot{plain} & \rot{luby} & \rot{SB \eqref{eq:cp_symm_packs}} & \rot{plain} & \rot{\makecell[l]{plain\\[-0.3em]\small+ FS}} & \rot{\makecell[l]{SB \eqref{eq:cp_symm_packs}\\[-0.3em]\small+ FS}} \\ 
+            & \multicolumn{4}{c}{Gecode} & \multicolumn{3}{c}{Chuffed} \\
+            \cmidrule(lr){2-5} \cmidrule(lr){6-8}
+            Id & \rot{base}        & \rot{implied}     & \rot{implied_lns} & \rot{SB}          & \rot{base}        & \rot{implied_rs}  & \rot{SB}          \\ 
             \midrule
-            7  & 201            & \textbf{167}  & \textbf{167}  & \textbf{167}  & \textbf{167}  & \textbf{167}  & \textbf{167}  & \textbf{167}  & \textbf{167}  & 408           & \textbf{167}  & \textbf{167}  \\ 
-            9  & \textbf{436}   & \textbf{436}  & \textbf{436}  & \textbf{436}  & \textbf{436}  & \textbf{436}  & \textbf{436}  & \textbf{436}  & \textbf{436}  & 617           & \textbf{436}  & \textbf{436}  \\ 
+            1  & \textbf{14}       & \textbf{14}       & 14                & 14                & \textbf{14}       & \textbf{14}       & \textbf{14}       \\ 
+            2  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
+            3  & \textbf{12}       & \textbf{12}       & 12                & 18                & \textbf{12}       & \textbf{12}       & \textbf{12}       \\
+            4  & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      & \textbf{220}      \\
+            5  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
+            6  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
+            7  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
+            8  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
+            9  & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\
+            10 & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      & \textbf{226}      \\ 
             11 & 594            & 597           & 528           & 490           & 503           & --            & 963           & --            & 756           & 1669          & 1189          & 1081          \\ 
             12 & 449            & 428           & 375           & \textbf{346}  & 348           & --            & 833           & 1061          & 785           & 1605          & 706           & 899           \\ 
             13 & 648            & 704           & 656           & 616           & 610           & 624           & 1126          & 914           & 1126          & 1734          & 584           & 746           \\ 
@@ -123,5 +158,4 @@ For Gecode, we experimented different search approaches by testing restart metho
 
 For Chuffed, we only experimented with restarts and symmetry breaking constraints as LNS is not available through MiniZinc. Moreover, as indicated in the documentation\footnote{\url{https://docs.minizinc.dev/en/stable/solvers.html}}, we tried enabling free search mode but only obtained worse results. Compared to Gecode, results on bigger instances are generally all worse, while smaller instances tend to be solved faster by Chuffed. As in Gecode, restarts, which we only experimented with random variable selection as it is the only non-deterministic search strategy available, and symmetry breaking constraints both yield mixed effects on the final result.
 
-Finally, for OR-Tools, we conducted fewer experiments as it supports fewer MiniZinc annotations. In this case, we observed that enabling free search mode allows obtaining better results and, similarly to Gecode and Chuffed, symmetry breaking constraints have mixed results. As a side note, we must also observe that, as suggested in the documentation, these results are worse as OR-Tools performs better with multi-threading. 
-
+Finally, for OR-Tools, we conducted fewer experiments as it supports fewer MiniZinc annotations. In this case, we observed that enabling free search mode allows obtaining better results and, similarly to Gecode and Chuffed, symmetry breaking constraints have mixed results. As a side note, we must also observe that, as suggested in the documentation, these results are worse as OR-Tools performs better with multi-threading.
