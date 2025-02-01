@@ -1,10 +1,11 @@
 from minizinc import Instance, Model, Solver
 from datetime import timedelta
 import json, os
-from CP.parser_CP import parse
+from CP.parser import parse
 import time, math
+import re
 
-def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
+def solve(instance_list, solver_name= None, model_name= None, timeout = 300):
 
     #directory for parsed data
     DATA_DIR = "CP/data"
@@ -22,7 +23,7 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                        'chuffed'
                        ]
 
-    for inst_number, inst in enumerate(parsed_instances, 1):
+    for inst in parsed_instances:
         print(f"Solving instance: {inst}")
         results = {}
         for slv in solver_list:
@@ -51,7 +52,6 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                 # Extract the solution matrix
                 if result.status != result.status.UNKNOWN:
                     path_matrix = result.solution.x
-                    print(path_matrix)
                     result_path = []
                     for r in range(len(path_matrix)):
                         courier_path = [path_matrix[r][len(path_matrix[r])-1]]
@@ -59,14 +59,14 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                             courier_path.append(path_matrix[r][courier_path[-1]-1])
                         result_path.append(courier_path)
 
-                    results[mdl] = {
+                    results[f'{mdl.removesuffix(".mzn")}_{slv}'] = {
                         "time" : solve_time if solve_time < timeout else timeout,
                         "optimal" : result.status == result.status.OPTIMAL_SOLUTION and solve_time < timeout,
                         "obj" : result.objective,
                         "sol" : result_path
                         }
                 else:
-                    results[mdl] = {
+                    results[f'{mdl.removesuffix(".mzn")}_{slv}'] = {
                         "time" : timeout,
                         "optimal" : False,
                         "obj" : None,
@@ -74,7 +74,7 @@ def solve(instance_list, model_name= None, solver_name= None, timeout = 300):
                         }
 
                 
-
-        result_filename = f"results/CP/{inst_number}.json"
+        instance_number = re.search(r'\d+', inst)
+        result_filename = f"res/CP/{int(instance_number.group())}.json"
         with open(result_filename, "w") as json_file:
             json.dump(results, json_file, indent=4)

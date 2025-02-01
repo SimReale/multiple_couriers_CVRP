@@ -12,27 +12,25 @@ param l{COURIERS} integer; #array of capacity of each couriers
 param s{ITEMS} integer; #array of size of each packs
 param D{i in V, j in V} integer; #matrix of D
 
-
-
 #variables
 var x {V, V, COURIERS} binary; #xijc = 1 iﬀ vehicle c moves from node i to j; 0 otherwise
 var y {ITEMS, COURIERS} binary; #yic = 1 iﬀ vehicle c visits node i ; 0 otherwise
 var u {V, COURIERS} >= 1 <= n + 1; #uic is the cumulated demand serviced by vehicle c when arriving at node i
 
-
-
-#Upper and Lower Bound
-var MaxD{i in V};  
-subject to MaxD_def{i in V, j in V}: MaxD[i] >= D[i, j];  
-
+#Upper and Lower Bound variables and constraints
+var UpBound{i in V};  
 var LoBound;
+
+subject to MaxUp_def{i in V, j in V}: UpBound[i] >= D[i, j];  
 subject to MaxLo_def{i in ITEMS}: LoBound >= D[n+1, i] + D[i, n+1];
 
-#Objective
+#Objective variable and relative constraints
 var max_distance;
+
 subject to ObjLowerBound: max_distance >= LoBound;
-subject to ObjUpperBound: max_distance <= sum{i in V} MaxD[i]; 
-subject to linearize_max_distance {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,c] <= max_distance;
+subject to ObjUpperBound: max_distance <= sum{i in V} UpBound[i]; 
+
+subject to objective_function {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,c] <= max_distance;
 
 minimize max_distance_obj: max_distance;
 
@@ -53,8 +51,8 @@ subject to Start_depot {c in COURIERS}: sum {i in V} x[n+1, i, c] = 1;
 #Path-flow
 subject to Path_flow {j in ITEMS, c in COURIERS}: sum {i in V} x[i, j, c] = sum {i in V} x[j, i, c];
 
-#Coupling (or Channeling)
+#Coupling (or Channelling)
 subject to Coupling {i in ITEMS, c in COURIERS}: sum {j in V} x[i,j,c] = y[i,c];
 
 #Miller, Tucker and Zemlin constraint
-subject to MTZ {c in COURIERS, i in ITEMS, j in V: i != j}: u[i, c] - u[j, c] + 1 <= n *(1- x[i, j, c]);
+subject to MTZ {c in COURIERS, i in ITEMS, j in ITEMS: i != j}: u[i, c] - u[j, c] + 1 <= n *(1- x[i, j, c]);

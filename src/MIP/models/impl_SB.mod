@@ -61,3 +61,7 @@ subject to MTZ {c in COURIERS, i in ITEMS, j in ITEMS: i != j}: u[i, c] - u[j, c
 
 #every courier leave the depot
 subject to All_depart {c in COURIERS}: sum {i in ITEMS} y[i, c] >= 1;
+
+################### symmetry breaking ###################
+subject to SymmetryBreak {c1 in COURIERS, c2 in COURIERS: c1 < c2 && l[c1] == l[c2]}:
+    sum{i in ITEMS} y[i,c1] <= sum{i in ITEMS} y[i,c2];
