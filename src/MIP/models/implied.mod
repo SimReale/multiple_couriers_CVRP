@@ -8,7 +8,7 @@ set ITEMS := {1..n};
 set V := {1..n+1}; #n+1 is the depot
 
 #additional parameters
-param l{COURIERS} integer; #array of capacity of each coureirs
+param l{COURIERS} integer; #array of capacity of each couriers
 param s{ITEMS} integer; #array of size of each packs
 param D{i in V, j in V} integer; #matrix of D
 
@@ -20,11 +20,13 @@ var u {V, COURIERS} >= 1 <= n + 1; #uic is the cumulated demand serviced by vehi
 #Upper and Lower Bound variables and constraints
 var UpBound{i in V};  
 var LoBound;
+
 subject to MaxUp_def{i in V, j in V}: UpBound[i] >= D[i, j];  
 subject to MaxLo_def{i in ITEMS}: LoBound >= D[n+1, i] + D[i, n+1];
 
 #Objective variable and relative constraints
 var max_distance;
+
 subject to ObjLowerBound: max_distance >= LoBound;
 subject to ObjUpperBound: max_distance <= sum{i in V} UpBound[i]; 
 
@@ -35,7 +37,7 @@ minimize max_distance_obj: max_distance;
 #constraints
 
 #A customer is visited by exactly one vehicle
-subject to Customer_once {i in ITEMS}: sum {c in COURIERS} y[i, c] = 1; 
+subject to Customer_once {i in ITEMS}: sum {c in COURIERS} y[i, c] = 1;
 
 #load carried lower than the capacity of the courier
 subject to Load_carried {c in COURIERS}: sum {i in ITEMS} y[i, c]*s[i] <= l[c];
@@ -49,18 +51,13 @@ subject to Start_depot {c in COURIERS}: sum {i in V} x[n+1, i, c] = 1;
 #Path-flow
 subject to Path_flow {j in ITEMS, c in COURIERS}: sum {i in V} x[i, j, c] = sum {i in V} x[j, i, c];
 
-#Coupling (or Channeling)
+#Coupling (or Channelling)
 subject to Coupling {i in ITEMS, c in COURIERS}: sum {j in V} x[i,j,c] = y[i,c];
 
 #Miller, Tucker and Zemlin constraint
-subject to MTZ {c in COURIERS, i in ITEMS, j in V: i != j}: u[i, c] - u[j, c] + 1 <= (n)*(1- x[i, j, c]);
+subject to MTZ {c in COURIERS, i in ITEMS, j in ITEMS: i != j}: u[i, c] - u[j, c] + 1 <= n *(1- x[i, j, c]);
 
 ################### implied ###################
 
-#every location must be visited exactly once redundancy implied from y[i, c] = 1 and Coupling
-subject to VisitedOnce_row {i in ITEMS}: sum {j in V, c in COURIERS} x[i, j, c] = 1;
-#visited once columns lower the performances
-
 #every courier leave the depot
-#implied
 subject to All_depart {c in COURIERS}: sum {i in ITEMS} y[i, c] >= 1;

@@ -20,11 +20,13 @@ var u {V, COURIERS} >= 1 <= n + 1; #uic is the cumulated demand serviced by vehi
 #Upper and Lower Bound variables and constraints
 var UpBound{i in V};  
 var LoBound;
+
 subject to MaxUp_def{i in V, j in V}: UpBound[i] >= D[i, j];  
 subject to MaxLo_def{i in ITEMS}: LoBound >= D[n+1, i] + D[i, n+1];
 
 #Objective variable and relative constraints
 var max_distance;
+
 subject to ObjLowerBound: max_distance >= LoBound;
 subject to ObjUpperBound: max_distance <= sum{i in V} UpBound[i]; 
 
@@ -35,33 +37,31 @@ minimize max_distance_obj: max_distance;
 #constraints
 
 #A customer is visited by exactly one vehicle
-subject to Customer_once {i in ITEMS}: sum {c in COURIERS} y[i, c] = 1; 
-
-#redundandt: every location must be visited exactly once, redundancy implied from y[i, c] = 1 and Coupling
-subject to VisitedOnce_row {i in ITEMS}: sum {j in V, c in COURIERS} x[i, j, c] = 1;
-
-#every courier leave the depot
-#check if useful
-subject to All_depart {c in COURIERS}: sum {i in ITEMS} y[i, c] >= 1;
+subject to Customer_once {i in ITEMS}: sum {c in COURIERS} y[i, c] = 1;
 
 #load carried lower than the capacity of the courier
-subject to Load_carried {c in COURIERS}: sum {i in ITEMS} y[i, c]*s[i] <= l[c]; 
+subject to Load_carried {c in COURIERS}: sum {i in ITEMS} y[i, c]*s[i] <= l[c];
 
 #cannot move from one position to itself
-subject to Pos_itself {c in COURIERS, i in V}: x[i, i, c] = 0; 
+subject to Pos_itself {c in COURIERS, i in V}: x[i, i, c] = 0;
 
 #every courier must end and start at the depot
-subject to Start_depot {c in COURIERS}: sum {i in V} x[n+1, i, c] = 1; 
+subject to Start_depot {c in COURIERS}: sum {i in V} x[n+1, i, c] = 1;
 
 #Path-flow
-subject to Path_flow {j in ITEMS, c in COURIERS}: sum {i in V} x[i, j, c] = sum {i in V} x[j, i, c]; 
+subject to Path_flow {j in ITEMS, c in COURIERS}: sum {i in V} x[i, j, c] = sum {i in V} x[j, i, c];
 
-#Coupling (or Channeling)
-subject to Coupling {i in ITEMS, c in COURIERS}: sum {j in V} x[i,j,c] = y[i,c]; 
+#Coupling (or Channelling)
+subject to Coupling {i in ITEMS, c in COURIERS}: sum {j in V} x[i,j,c] = y[i,c];
 
 #Miller, Tucker and Zemlin constraint
-subject to MTZ {c in COURIERS, i in ITEMS, j in V: i != j}: u[i, c] - u[j, c] + 1 <= (n)*(1- x[i, j, c]);
+subject to MTZ {c in COURIERS, i in ITEMS, j in ITEMS: i != j}: u[i, c] - u[j, c] + 1 <= n *(1- x[i, j, c]);
+
+################### implied ###################
+
+#every courier leave the depot
+subject to All_depart {c in COURIERS}: sum {i in ITEMS} y[i, c] >= 1;
 
 ################### symmetry breaking ###################
 subject to SymmetryBreak {c1 in COURIERS, c2 in COURIERS: c1 < c2 && l[c1] == l[c2]}:
-    sum{i in ITEMS} i * y[i,c1] <= sum{i in ITEMS} i * y[i,c2];
+    sum{i in ITEMS} y[i,c1] <= sum{i in ITEMS} y[i,c2];

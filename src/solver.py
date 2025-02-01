@@ -57,13 +57,9 @@ if __name__ == "__main__":
                     'MIP'
                     ]
 
-    solver_name = [args[2]] if args.solver_name else args.solver_name
-    model_name = [args[3]] if args.model_name else args.model_name
-
-    print(solver_name, model_name)
-
+    solver_name = [args.solver_name] if args.solver_name else args.solver_name
+    model_name = [args.model_name] if args.model_name else args.model_name
 
     run_models(instances, approaches, solver_name, model_name, args.timeout)
         
-
     check_solution.main(('check_solution', 'instances', 'res/'))
