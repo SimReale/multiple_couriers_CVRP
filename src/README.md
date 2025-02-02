@@ -32,7 +32,7 @@ docker run -t <docker_image_name> [--instances <instance(s)_name> --approach <ap
     - **MIP**: `highs`, `scip`, `gurobi`
 * `<model_name>`: Formulation to use (depends on the chosen method):
     - **CP**: `base`, `implied`, `symm`. Only with gecode as solver `implied_lns`
-    - **SAT**: `base`
+    - **SAT**: `base`, `symm`
     - **SMT**: `base`, `symm` . `symm` only available for `z3_py` solver. 
     - **MIP**: `base`, `implied`, `impl_SB`
 
