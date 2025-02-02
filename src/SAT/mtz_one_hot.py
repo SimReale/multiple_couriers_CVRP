@@ -45,7 +45,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         
         # each pack must be delivered
         for p in packs:
-            if time() - start_time >= 300:
+            if time() - start_time >= timeout:
                 raise TimeoutException
             solver.add(exactly_one([assignments[c][p] for c in cours]))
 
@@ -63,7 +63,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
 
             # channelling constraints
             for p in packs:
-                if time() - start_time >= 300:
+                if time() - start_time >= timeout:
                     raise TimeoutException
 
                 solver.add(Implies(assignments[c][p], And(exactly_one([paths[c][p][e] for e in locs]), exactly_one([paths[c][s][p] for s in locs]))))
@@ -85,7 +85,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
                     if p1 != p2 and True == If(paths[c][p1][p2], True, False):
                         for o in packs[:-1]:
 
-                            if time() - start_time >= 300:
+                            if time() - start_time >= timeout:
                                 raise TimeoutException
                             solver.add(Implies(And(paths[c][p1][p2], u[p1][o]), u[p2][o+1]))
 
@@ -96,7 +96,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
                     for o1 in packs:                
                         for o2 in packs:
 
-                            if time() - start_time >= 300:
+                            if time() - start_time >= timeout:
                                 raise TimeoutException
                             solver.add(Implies(And(u[p1][o1], u[p2][o2]), 
                                                o1 - o2 + 1 <= (n-1) * (1-If(at_least_one([paths[c][p1][p2] for c in cours]), 1, 0))))
@@ -108,7 +108,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         if symm == True:
             for p1 in packs:
                 for p2 in packs:
-                    if time() - start_time >= 300:
+                    if time() - start_time >= timeout:
                         raise TimeoutException
 
                     # lexicographic ordering on the loads
