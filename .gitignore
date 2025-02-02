@@ -174,5 +174,5 @@ cython_debug/
 #ignore instances modification
 src/MIP/instances
 src/CP/data
-src/MIP/models/two_index.mod
+#res
 output_table.tex

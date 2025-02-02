@@ -15,7 +15,7 @@ param D{i in V, j in V} integer; #matrix of D
 #variables
 var x {V, V, COURIERS} binary; #xijc = 1 iﬀ vehicle c moves from node i to j; 0 otherwise
 var y {ITEMS, COURIERS} binary; #yic = 1 iﬀ vehicle c visits node i ; 0 otherwise
-var u {V, COURIERS} >= 1 <= n + 1; #uic is the cumulated demand serviced by vehicle c when arriving at node i
+var u {ITEMS, COURIERS} >= 1 <= n; #uic is the cumulated demand serviced by vehicle c when arriving at node i
 
 #Upper and Lower Bound variables and constraints
 var UpBound{i in V};  
@@ -34,7 +34,7 @@ subject to objective_function {c in COURIERS}: sum{i in V, j in V} D[i,j]*x[i,j,
 
 minimize max_distance_obj: max_distance;
 
-#constraints
+################### constraints ###################
 
 #A customer is visited by exactly one vehicle
 subject to Customer_once {i in ITEMS}: sum {c in COURIERS} y[i, c] = 1;
