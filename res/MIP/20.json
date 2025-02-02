@@ -1,0 +1,56 @@
+{
+    "implied_scip": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "implied_highs": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "implied_gurobi": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "base_scip": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "base_highs": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "base_gurobi": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "impl_SB_scip": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "impl_SB_highs": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "impl_SB_gurobi": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    }
+}
