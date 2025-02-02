@@ -71,7 +71,7 @@ def run_models(instances, approaches, solver_name= None, model_name= None, timeo
             if not os.path.exists(RESULTS_DIR + approach):
                 os.makedirs(RESULTS_DIR + approach)
 
-            approach_map[approach.upper()](instances, solver_name, model_name)
+            approach_map[approach.upper()](instances, solver_name, model_name, timeout)
 
     except:
         print('\nIncorrect parameters given\n')
