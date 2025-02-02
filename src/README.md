@@ -26,7 +26,7 @@ $ ./run_docker.sh <docker_name> --instances <instance(s)_name> --approach <appro
 * `<model_name>`: Formulation to use (depends on the chosen method):
     - **CP**: `base`, `implied`, `symm`. Only with gecode as solver `implied_lns`
     - **SAT**: `base`
-    - **SMT**: `plain_smt`, `symm_smt`, `plain_smtlib`
+    - **SMT**: `base`, `symm`
     - **MIP**: `base`, `implied`, `impl_SB`
 
 * `<time>`: Maximum time in seconds allowed for the solver to run.
