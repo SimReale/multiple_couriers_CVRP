@@ -1,6 +1,6 @@
-# CDMO_MCCVRP
+# Capacitated Vehicle Routing Problem (CVRP)
 
-This repository contains the code and the project report for the **Multiple Courier Capacitated Vehicle Routing Problem** (MCCVRP) repository for the **CDMO-2024 exam**.
+This repository contains the code and the project report for the **Capacitated Vehicle Routing Problem** (CVRP) repository for the **CDMO-2024 exam**.
 
 ## Usage
 
