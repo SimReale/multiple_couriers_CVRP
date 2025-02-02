@@ -4,7 +4,7 @@ This repository contains the code and the project report for the **Multi Courier
 
 ## Usage
 
-To reproduce our results, please ensure Docker is installed on your system. Once Docker is installed, you can solve the different instances by running the following bash script in your terminal:
+To reproduce our results, please ensure Docker is installed on your system. Once Docker is installed, you can solve the different instances by running the following bash script in your terminal; this script should be executed from the terminal while in the Dockerfile directory.
 
 ```{bash}
 $ ./run_docker.sh <docker_name> --instances <instance(s)_name> --approach <approach> --solver_name <solver_name> --model_name <model_name> --timeout <timeout>
@@ -12,6 +12,7 @@ $ ./run_docker.sh <docker_name> --instances <instance(s)_name> --approach <appro
 
 ### Usage rules
  * All the parameters are optional, if you would like to run everything you simply non specify nothing. 
+ * You can specify more than one instance, separated by a comma without space. The instances names are those in the instance directory, without .dat -> inst01,inst02,inst10 or simply inst07
  * If you specify the model_name or the solver_name you have to specify also the approach, otherwise a parse error will be raised.
  * If you specify the model_name then the solver_name must be specified, otherwise a parse error will be raised.
 ### Flags value
