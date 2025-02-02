@@ -7,9 +7,13 @@ This repository contains the code and the project report for the **Multi Courier
 To reproduce our results, please ensure Docker is installed on your system. Once Docker is installed, you can solve the different instances by running the following bash script in your terminal:
 
 ```{bash}
-$ run_docker.sh <docker_name> --instances <instance(s)_name> --approach <approach> --solver_name <solver_name> --model_name <model_name> --timeout <timeout>
+$ ./run_docker.sh <docker_name> --instances <instance(s)_name> --approach <approach> --solver_name <solver_name> --model_name <model_name> --timeout <timeout>
 ```
-All the parameters are optional, if you would like to run everything you simply non specify nothing. Or, for example, you could decide to run all the approaches on a specific instance, please referr to the example at the bottom of the page.
+
+### Usage rules
+ * All the parameters are optional, if you would like to run everything you simply non specify nothing. 
+ * If you specify the model_name or the solver_name you have to specify also the approach, otherwise a parse error will be raised.
+ * If you specify the model_name then the solver_name must be specified, otherwise a parse error will be raised.
 ### Flags value
 
 * `<instances>`: name of one or more instances, seprated by a comma, contained in the instances directory. You can choose either to run one instance -> inst01, or more than one inst01,inst10
@@ -37,12 +41,12 @@ AMPL_LICENSE="your_license"
 ### Example Usage:
 Run everything:
 ```
-$ run_docker.sh <docker_name> 
+$ ./run_docker.sh <docker_name> 
 ```
 
 Run a specific instance settings with a specfic approach, solver, base and timeout:
 ```{bash}
-$ run_docker.sh <docker_name> --instances inst01 --approach MIP --solver_name gurobi --model_name base --timeout 300
+$ ./run_docker.sh <docker_name> --instances inst01 --approach MIP --solver_name gurobi --model_name base --timeout 300
 ```
 
 ## Authors

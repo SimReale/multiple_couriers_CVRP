@@ -3,7 +3,7 @@ import argparse
 import check_solution
 from CP.solver import solve as cp_solve
 from SAT.solver import solve as sat_solve
-#from SMT.solver import solve as smt_solve
+from SMT.solver import solve as smt_solve
 from MIP.solver import solve as mip_solve
 
 def run_models(instances, approaches, solver_name= None, model_name= None, timeout= 300):
@@ -14,7 +14,7 @@ def run_models(instances, approaches, solver_name= None, model_name= None, timeo
     approach_map = {
         'CP' : cp_solve,
         'SAT' : sat_solve, 
-        #'SMT' : smt_solve,
+        'SMT' : smt_solve,
         'MIP' : mip_solve
     }
 
@@ -41,6 +41,14 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.solver_name or args.model_name:
+        if not args.approach:
+            parser.error("--approach must be specified if --solver_name or --model_name is provided.")
+    
+    if args.model_name:
+        if not args.solver_name:
+            parser.error("--solver_name must be specified if --model_name is provided.")
+
     if args.instances:
         instances = [f'{inst}.dat' for inst in args.instances.split(',')]  
     else:
@@ -51,10 +59,10 @@ if __name__ == "__main__":
         approaches = [args.approach]  
     else:
         approaches = [
-                    #'CP',
+                    'CP',
                     'SAT', 
-                    #'SMT', 
-                    #'MIP'
+                    'SMT', 
+                    'MIP'
                     ]
 
     solver_name = [args.solver_name] if args.solver_name else args.solver_name
