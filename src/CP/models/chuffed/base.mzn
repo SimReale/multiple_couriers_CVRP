@@ -23,6 +23,11 @@ array[1..m, 1..n+1] of var 1..n+1: x;
 % the load carried by each courier must be lower than the maximum load given in input
 constraint bin_packing_capa(l, bins, s);
 
+% each courier must take an item
+constraint forall(i in 1..m)(
+ 	x[i, n+1] != n+1
+);
+
 % couriers assignment for each pack
 constraint forall(i in 1..m, j in 1..n)( 
 	if bins[j] == i then x[i,j] != j else x[i,j] == j endif

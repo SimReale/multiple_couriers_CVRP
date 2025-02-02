@@ -1,0 +1,32 @@
+{
+    "plain_smt": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "symm_smt": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "z3": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "cvc4": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    },
+    "cvc5": {
+        "time": 300,
+        "optimal": false,
+        "obj": null,
+        "sol": null
+    }
+}

@@ -1,5 +1,4 @@
 from SAT.sat_utils import *
-import signal
 import gc
 
 
@@ -14,8 +13,6 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
     }
 
     # Timeout initialization
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(timeout)
     start_time = time()
 
     try:
@@ -25,6 +22,9 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
 
         # ----- DECISION VARIABLES AND SOLVER ----- #
 
+        # assignments
+        assignments = [[Bool(f"a_{c}_{p}") for p in packs] for c in cours]
+
         # paths
         paths = [[[Bool(f"p_{c}_{s}_{e}") for e in locs] for s in locs] for c in cours]
 
@@ -32,14 +32,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         u = [[Bool(f"u_{p}_{o}") for o in packs] for p in packs]
 
         # Solver
-        solver = Solver()
-
-
-
-        # ----- AUXILIARY VARIABLES ----- #
-
-        # assignments
-        assignments = [[Bool(f"a_{c}_{p}") for p in packs] for c in cours]
+        solver = Solver()        
 
 
 
@@ -93,7 +86,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
                     for o1 in packs:
                         for o2 in packs:
                             solver.add(Implies(And(u[p1][o1], u[p2][o2]), 
-                                               o1 - o2 + 1 <= (n-1) * (1-If(at_least_one([paths[c][p1][p2] for c in cours]), 1, 0))))
+                                               o1 - o2 + 1 <= n * (1-If(at_least_one([paths[c][p1][p2] for c in cours]), 1, 0))))
         
 
 
@@ -103,41 +96,27 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
             for p1 in packs:
                 for p2 in packs:
 
-                    # lexicographic ordering on the paths
-                    solver.add(And([Implies(And(paths[c][-1][p1], paths[c][p2][-1]), p1 <= p2) for c in cours]))
-
                     # lexicographic ordering on the loads
                     if p1 != p2:
                         solver.add([Implies(And(S[p1] == S[p2], Sum([If(assignments[c1][p], S[p], 0) for p in packs]) == Sum([If(assignments[c2][p], S[p], 0) for p in packs])), 
                                             And([assignments[c1][p1], assignments[c2][p2], c1 < c2])) for c1 in cours for c2 in cours if c1 != c2])
-                        
-                        #solver.add([Implies(And([assignments[c1][p1], assignments[c2][p2], L[c1] == L[c2], S[p1] == S[p2]]), c1 < c2) for c1 in cours for c2 in cours])
+
 
 
 
         # ----- OBJECTIVE FUNCTION ----- #
 
-        lower_bound, upper_bound = compute_bounds(m, n, D)
+        lower_bound, upper_bound = compute_bounds(n, D)
         max_distance = [Bool(f"d_{b}") for b in range(n_bits(upper_bound))]
         solver.add(binary_to_integer(max_distance) == Max([Sum([If(paths[c][s][e], D[s][e], 0) for s in locs for e in locs if s != e]) for c in cours]))
 
         solver.add(binary_to_integer(max_distance) >= lower_bound)
-    
-    except ctypes.ArgumentError:
-
-        # Reset the alarm
-        signal.alarm(0)
 
     except TimeoutException:
-
-        # Reset the alarm
-        signal.alarm(0)
+        
+        print("Time exceeded!")
 
     else:
-        # Reset the alarm
-        signal.alarm(0)
-
-
 
         # ----- PROBLEM SOLVING ----- #
 
@@ -153,9 +132,9 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
             solver.push()
 
             # Adaptive Binary Search
-            '''if curr_objective == upper_bound:
-                new_upper_bound = upper_bound'''
-            if curr_objective <= 2*lower_bound:
+            if curr_objective == upper_bound:
+                new_upper_bound = upper_bound
+            elif curr_objective <= 2*lower_bound:
                 new_upper_bound = curr_objective
             else:
                 new_upper_bound = (lower_bound + curr_objective)//2 + 1
@@ -196,6 +175,8 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
             res["optimal"] = False
             res["obj"] = curr_objective
             res["sol"] = result_paths
+    
+    print("Execution termined!")
 
     solver.reset()
     del solver

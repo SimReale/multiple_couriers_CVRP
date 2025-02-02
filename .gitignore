@@ -175,5 +175,4 @@ cython_debug/
 src/MIP/instances
 src/CP/data
 #res
-src/MIP/models/two_index.mod
 output_table.tex

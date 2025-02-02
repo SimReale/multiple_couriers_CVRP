@@ -1,0 +1,142 @@
+{
+    "implied_gecode": {
+        "time": 0,
+        "optimal": true,
+        "obj": 12,
+        "sol": [
+            [
+                5,
+                4,
+                2
+            ],
+            [
+                3,
+                6
+            ],
+            [
+                7,
+                1
+            ]
+        ]
+    },
+    "symm_gecode": {
+        "time": 300,
+        "optimal": false,
+        "obj": 18,
+        "sol": [
+            [
+                1,
+                4,
+                6
+            ],
+            [
+                7,
+                3
+            ],
+            [
+                2,
+                5
+            ]
+        ]
+    },
+    "base_gecode": {
+        "time": 0,
+        "optimal": true,
+        "obj": 12,
+        "sol": [
+            [
+                5,
+                4,
+                2
+            ],
+            [
+                7,
+                3
+            ],
+            [
+                6,
+                1
+            ]
+        ]
+    },
+    "implied_lns_gecode": {
+        "time": 300,
+        "optimal": false,
+        "obj": 12,
+        "sol": [
+            [
+                5,
+                4,
+                2
+            ],
+            [
+                3,
+                6
+            ],
+            [
+                7,
+                1
+            ]
+        ]
+    },
+    "implied_chuffed": {
+        "time": 0,
+        "optimal": true,
+        "obj": 12,
+        "sol": [
+            [
+                3,
+                6,
+                5
+            ],
+            [
+                2,
+                4
+            ],
+            [
+                1,
+                7
+            ]
+        ]
+    },
+    "symm_chuffed": {
+        "time": 0,
+        "optimal": true,
+        "obj": 12,
+        "sol": [
+            [
+                3,
+                6,
+                5
+            ],
+            [
+                2,
+                4
+            ],
+            [
+                1,
+                7
+            ]
+        ]
+    },
+    "base_chuffed": {
+        "time": 0,
+        "optimal": true,
+        "obj": 12,
+        "sol": [
+            [
+                3,
+                6,
+                5
+            ],
+            [
+                2,
+                4
+            ],
+            [
+                1,
+                7
+            ]
+        ]
+    }
+}
