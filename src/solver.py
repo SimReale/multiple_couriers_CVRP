@@ -1,6 +1,5 @@
 import os
 import argparse
-import check_solution
 from CP.solver import solve as cp_solve
 from SAT.solver import solve as sat_solve
 from SMT.solver import solve as smt_solve
@@ -51,10 +50,14 @@ def get_args():
     solver_name = [args.solver_name] if args.solver_name else args.solver_name
     model_name = [args.model_name] if args.model_name else args.model_name
 
-    return instances, approaches, solver_name, model_name, args.timeout
+    if args.timeout:
+        timeout = int(args.timeout)
+    else:
+        timeout = 300
+
+    return instances, approaches, solver_name, model_name, timeout
 
 def run_models(instances, approaches, solver_name= None, model_name= None, timeout= 300):
-    #run the selected instance using the chosen approach
 
     RESULTS_DIR = "/app/res/"
 
@@ -81,5 +84,3 @@ if __name__ == "__main__":
     instances, approaches, solver_name, model_name, timeout = get_args()
 
     run_models(instances, approaches, solver_name, model_name, timeout)
-        
-    check_solution.main(('check_solution', 'instances', 'res/'))

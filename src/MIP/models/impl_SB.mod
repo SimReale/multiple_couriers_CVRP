@@ -18,7 +18,7 @@ var y {ITEMS, COURIERS} binary; #yic = 1 iﬀ vehicle c visits node i ; 0 otherw
 var u {ITEMS, COURIERS} >= 1 <= n; #uic is the cumulated demand serviced by vehicle c when arriving at node i
 
 #Upper and Lower Bound variables and constraints
-var UpBound{i in V};  
+var UpBound{i in V};
 var LoBound;
 
 subject to MaxUp_def{i in V, j in V}: UpBound[i] >= D[i, j];  

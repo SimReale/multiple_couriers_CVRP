@@ -1,10 +1,10 @@
 # CDMO_MCCVRP
 
-This repository contains the code and the project report for the **Multi Courier Capacitated Vehicle Routing Problem** (MCCVRP) repository for the **CDMO-2024 exam**.
+This repository contains the code and the project report for the **Multiple Courier Capacitated Vehicle Routing Problem** (MCCVRP) repository for the **CDMO-2024 exam**.
 
 ## Usage
 
-To reproduce our results, please ensure Docker is installed on your system. Once Docker is installed, to run the docker the following scripts should be executed from the terminal while in the Dockerfile directory:
+To reproduce our results, ensure Docker is installed on your system. Once Docker is installed, to run the docker the following scripts should be executed from the terminal while in the Dockerfile directory:
 
 - To build the docker
 ```
@@ -16,11 +16,13 @@ docker run -t <docker_name> [--instances <instance(s)_name> --approach <approach
 ```
 
 ### Usage rules
- * All the parameters are optional, if you would like to run everything you simply non specify nothing. 
+ * All the parameters are optional and almost all independently, if you would like to run everything you simply non specify nothing. Read other rules.
+ * The default timeout is 300 seconds
  * You can specify more than one instance, separated by a comma without space. The instances names are those in the instance directory, without .dat -> inst01,inst02,inst10 or simply inst07
+ * You can specify even only the approach, to run everything for that approach 
  * If you specify the model_name or the solver_name you have to specify also the approach, otherwise a parse error will be raised.
  * If you specify the model_name then the solver_name must be specified, otherwise a parse error will be raised.
- 
+
 ### Flags value
 
 * `<instances>`: name of one or more instances, seprated by a comma, contained in the instances directory. You can choose either to run one instance -> inst01, or more than one inst01,inst10
@@ -32,7 +34,7 @@ docker run -t <docker_name> [--instances <instance(s)_name> --approach <approach
     - **MIP**: `highs`, `scip`, `gurobi`
 * `<model_name>`: Formulation to use (depends on the chosen method):
     - **CP**: `base`, `implied`, `symm`. Only with gecode as solver `implied_lns`
-    - **SAT**: `base`
+    - **SAT**: `base`, `symm`
     - **SMT**: `base`, `symm` . `symm` only available for `z3_py` solver. 
     - **MIP**: `base`, `implied`, `impl_SB`
 
@@ -49,6 +51,11 @@ AMPL_LICENSE="your_license"
 Run everything:
 ```
 docker run -t <docker_name>
+```
+
+Run two instances with a specific approach, using all the available solvers and models:
+```
+docker run -t <docker_name> --instances inst10,inst21 --approach MIP
 ```
 
 Run a specific instance settings with a specfic approach, solver, base and timeout:
