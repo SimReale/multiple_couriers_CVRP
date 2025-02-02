@@ -1,4 +1,4 @@
-import os, sys
+import os
 import argparse
 import check_solution
 from CP.solver import solve as cp_solve
@@ -39,7 +39,7 @@ def get_args():
         instances = os.listdir(directory)
         instances.sort()
     if args.approach:
-        approaches = [appr for appr in args.approach.split(',')]  
+        approaches = [args.approach]  
     else:
         approaches = [
                     'CP',
