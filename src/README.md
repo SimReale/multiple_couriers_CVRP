@@ -22,12 +22,12 @@ $ ./run_docker.sh <docker_name> --instances <instance(s)_name> --approach <appro
 * `<solver_name>`: Solver to employ (depends on the chosen method):
     - **CP**: `gecode`, `chuffed`
     - **SAT**: `z3`
-    - **SMT**: `z3`, `z3`, `cvc4`, `cvc5`
+    - **SMT**: `z3_py`, `z3`, `cvc4`, `cvc5`
     - **MIP**: `highs`, `scip`, `gurobi`
 * `<model_name>`: Formulation to use (depends on the chosen method):
     - **CP**: `base`, `implied`, `symm`. Only with gecode as solver `implied_lns`
     - **SAT**: `base`
-    - **SMT**: `base`
+    - **SMT**: `base`, `symm` . `Symm` only available for `z3_py` solver. 
     - **MIP**: `base`, `implied`, `impl_SB`
 
 * `<time>`: Maximum time in seconds allowed for the solver to run.
