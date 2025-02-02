@@ -1,5 +1,6 @@
 from SAT.sat_utils import *
 import gc
+import random
 
 
 def MTZ_model(m, n, L, S, D, timeout, symm=False):
@@ -11,6 +12,10 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         "obj": None,
         "sol": None
     }
+
+    # Random seed for reproducibility
+    random.seed(42)
+    set_param('sat.random_seed', 42)
 
     # Timeout initialization
     start_time = time()
@@ -32,7 +37,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         u = [[Bool(f"u_{p}_{o}") for o in packs] for p in packs]
 
         # Solver
-        solver = Solver()        
+        solver = Solver()
 
 
 
@@ -62,22 +67,24 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
                 solver.add(Implies(Not(assignments[c][p]), And([And(Not(paths[c][p][e]), Not(paths[c][e][p])) for e in locs])))
 
                 tstp_2 = time() - start_time
-                if (tstp_2 - tstp_1) * (n-p-1) > 300 - tstp_2:
+                if (tstp_2 - tstp_1) * m * (n-p) > 300 - tstp_2:
                     raise TimeoutException
 
         # assignment of the ordering variables for u
         for p1 in packs:
-            # first packs delivered
-            solver.add(Implies(paths[c][n][p1], u[p1][0]))
 
             # each pack is delivered only once
             solver.add(exactly_one(u[p1]))
 
-            # following packs
-            for p2 in packs:
-                if p1 != p2:
-                    for o in packs[:-1]:
-                        solver.add(Implies(And(paths[c][p1][p2], u[p1][o]), u[p2][o+1]))
+            for c in cours:
+                # first packs delivered
+                solver.add(Implies(paths[c][n][p1], u[p1][0]))
+
+                # following packs
+                for p2 in packs:
+                    if p1 != p2:
+                        for o in packs[:-1]:
+                            solver.add(Implies(And(paths[c][p1][p2], u[p1][o]), u[p2][o+1]))
 
         # MTZ formulation for subtour elimination
         for p1 in packs:
@@ -86,7 +93,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
                     for o1 in packs:
                         for o2 in packs:
                             solver.add(Implies(And(u[p1][o1], u[p2][o2]), 
-                                               o1 - o2 + 1 <= n * (1-If(at_least_one([paths[c][p1][p2] for c in cours]), 1, 0))))
+                                               o1 - o2 + 1 <= (n-1) * (1-If(at_least_one([paths[c][p1][p2] for c in cours]), 1, 0))))
         
 
 
@@ -134,7 +141,7 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
             # Adaptive Binary Search
             if curr_objective == upper_bound:
                 new_upper_bound = upper_bound
-            elif curr_objective <= 2*lower_bound:
+            elif curr_objective <= 2.5*lower_bound:
                 new_upper_bound = curr_objective
             else:
                 new_upper_bound = (lower_bound + curr_objective)//2 + 1

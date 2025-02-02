@@ -1,4 +1,4 @@
-from amplpy import AMPL
+from amplpy import AMPL, modules
 import os
 import math
 import json
@@ -44,6 +44,8 @@ def instance_converter(instances, output_directory):
             output_file.writelines(output_lines)
 
 def solve(instances, solver_name= None, model_name= None, timeout = 300):
+
+    modules.activate(os.environ["AMPL_LICENSE"])
 
     DATA_DIR = 'MIP/instances'
     if not os.path.exists(DATA_DIR):
