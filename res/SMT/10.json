@@ -1,5 +1,5 @@
 {
-    "plain_smt": {
+    "base_z3_py": {
         "time": 1,
         "optimal": true,
         "obj": 244,
@@ -39,7 +39,7 @@
             ]
         ]
     },
-    "symm_smt": {
+    "symm_z3_py": {
         "time": 1,
         "optimal": true,
         "obj": 244,

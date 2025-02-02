@@ -73,16 +73,9 @@ def generate_smt_lib(num_couriers, num_items, load_sizes, item_sizes, distances,
     # Calculation of lower and upper bounds
     num_nodes = num_items + 1
     depot = num_nodes - 1
-    lower_bound = max([distances[depot][j] + distances[j][depot] for j in range(num_nodes - 1)])
-    upper_bound = max([distances[depot][indices[0]] +
-                        sum([distances[indices[i]][indices[i+1]] for i in range(num_items - num_couriers)]) +
-                        distances[indices[num_items - num_couriers]][-1]
-                        for indices in combinations(range(num_items), num_items - num_couriers + 1)])
-      
-    # max_distances = [max(distances[i][:-1]) for i in range(num_items)]
-    # max_distances.sort()
-    # upper_bound = sum(max_distances) + max(distances[depot]) + max([distances[j][depot] for j in range(num_items)])
-    
+    lower_bound = max([distances[depot][j] + distances[j][depot] for j in range(num_nodes - 1)])      
+    upper_bound = sum([max(distances[i]) for i in range(num_nodes)])
+
 
     solver.add(max_dist >= lower_bound)
     solver.add(max_dist <= upper_bound)

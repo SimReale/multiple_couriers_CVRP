@@ -16,7 +16,7 @@ def solve(instances, solver_name, model_name= None, timeout=300):
     if model_name:
         models = model_name
     else:
-        models = ['plain_smt','symm_smt','symm_smtlib']
+        models = ['base','symm']
 
 
     for inst in instances:
@@ -32,12 +32,12 @@ def solve(instances, solver_name, model_name= None, timeout=300):
         for solver in solvers:
             if solver == 'z3_py':
                 for model in models: 
-                    if model == 'plain_smt':
+                    if model == 'base':
                         res = SMT_model(m, n, L, S, D, False, timeout)
-                        results[model] = res  
-                    if model == 'symm_smt': 
+                        results[f'{model}_{solver}'] = res  
+                    if model == 'symm': 
                         res = SMT_model(m, n, L, S, D, True, timeout) 
-                        results[model] = res 
+                        results[f'{model}_{solver}'] = res 
 
             else:
                 results[solver] = solve_smtlib(instance_number,solver)

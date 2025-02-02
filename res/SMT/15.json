@@ -1,11 +1,11 @@
 {
-    "plain_smt": {
+    "base_z3_py": {
         "time": 300,
         "optimal": false,
         "obj": null,
         "sol": null
     },
-    "symm_smt": {
+    "symm_z3_py": {
         "time": 300,
         "optimal": false,
         "obj": null,

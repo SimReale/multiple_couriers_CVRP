@@ -1,6 +1,6 @@
 {
-    "plain_smt": {
-        "time": 2,
+    "base_z3_py": {
+        "time": 1,
         "optimal": true,
         "obj": 436,
         "sol": [
@@ -39,8 +39,8 @@
             ]
         ]
     },
-    "symm_smt": {
-        "time": 2,
+    "symm_z3_py": {
+        "time": 1,
         "optimal": true,
         "obj": 436,
         "sol": [
@@ -86,7 +86,7 @@
         "sol": null
     },
     "cvc4": {
-        "time": 17,
+        "time": 16,
         "optimal": true,
         "obj": 436,
         "sol": [
@@ -126,7 +126,7 @@
         ]
     },
     "cvc5": {
-        "time": 12,
+        "time": 10,
         "optimal": true,
         "obj": 436,
         "sol": [

@@ -1,5 +1,5 @@
 {
-    "plain_smt": {
+    "base_z3_py": {
         "time": 0,
         "optimal": true,
         "obj": 186,
@@ -32,7 +32,7 @@
             ]
         ]
     },
-    "symm_smt": {
+    "symm_z3_py": {
         "time": 0,
         "optimal": true,
         "obj": 186,
@@ -66,40 +66,40 @@
         ]
     },
     "z3": {
-        "time": 43,
+        "time": 35,
         "optimal": true,
         "obj": 186,
         "sol": [
             [
-                7,
-                4
-            ],
-            [
-                5
-            ],
-            [
-                9
-            ],
-            [
-                10,
-                3
-            ],
-            [
                 2
-            ],
-            [
-                8
             ],
             [
                 6
             ],
             [
+                7
+            ],
+            [
                 1
+            ],
+            [
+                4,
+                5
+            ],
+            [
+                8
+            ],
+            [
+                9
+            ],
+            [
+                3,
+                10
             ]
         ]
     },
     "cvc4": {
-        "time": 63,
+        "time": 52,
         "optimal": true,
         "obj": 186,
         "sol": [
@@ -132,7 +132,7 @@
         ]
     },
     "cvc5": {
-        "time": 156,
+        "time": 130,
         "optimal": true,
         "obj": 186,
         "sol": [
