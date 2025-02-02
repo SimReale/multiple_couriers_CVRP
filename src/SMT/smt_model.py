@@ -65,11 +65,12 @@ def SMT_model(num_couriers, num_items, load_sizes, item_sizes, distances, sb=Non
     for i in range(num_items):
         solver.add(And(order[i] >= 0, order[i] <= num_items-1))
 
-
+    # Flow conservatios
     for i in range(num_couriers):
         for k in range(num_items):
             solver.add(Sum([paths[i][j][k] for j in range(num_items+1)]) == Sum([paths[i][k][j] for j in range(num_items+1)]))
 
+    # Each items is deliverd exactly ones
     for k in range(num_items):
         solver.add(Sum([paths[i][j][k] for i in range(num_couriers) for j in range(num_items+1)]) == 1)
 
@@ -85,7 +86,7 @@ def SMT_model(num_couriers, num_items, load_sizes, item_sizes, distances, sb=Non
         total_load = Sum([paths[i][j][k] * item_sizes[k] for j in range(num_items+1) for k in range(num_items)])
         solver.add(total_load <= load_sizes[i])
 
-    # paths[i][j][j] should be False for any i and any j
+    # No self-loops
     solver.add(Sum([paths[i][j][j] for j in range(num_items+1) for i in range(num_couriers)]) == 0)
 
     # Each path should begin and end at the depot
@@ -104,7 +105,6 @@ def SMT_model(num_couriers, num_items, load_sizes, item_sizes, distances, sb=Non
 
     solver.add(max_dist >= lower_bound)
     solver.add(max_dist <= upper_bound)
-
 
     # Symmetry breaking
     if sb: 
