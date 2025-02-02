@@ -1,5 +1,5 @@
 {
-    "mtz_base": {
+    "base": {
         "time": 0,
         "optimal": true,
         "obj": 206,
@@ -13,7 +13,7 @@
             ]
         ]
     },
-    "mtz_symm": {
+    "symm": {
         "time": 0,
         "optimal": true,
         "obj": 206,

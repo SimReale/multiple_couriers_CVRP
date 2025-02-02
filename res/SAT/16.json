@@ -1,11 +1,11 @@
 {
-    "mtz_base": {
+    "base": {
         "time": 300,
         "optimal": false,
         "obj": null,
         "sol": null
     },
-    "mtz_symm": {
+    "symm": {
         "time": 300,
         "optimal": false,
         "obj": null,
