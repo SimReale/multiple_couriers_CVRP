@@ -45,9 +45,12 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         
         # each pack must be delivered
         for p in packs:
+            if time() - start_time >= 300:
+                raise TimeoutException
             solver.add(exactly_one([assignments[c][p] for c in cours]))
 
         for c in cours:
+            
             # each courier must start and end in the depot and must take a pack
             solver.add(exactly_one([paths[c][-1][e] for e in locs]))
             solver.add(exactly_one([paths[c][s][-1] for s in locs]))
@@ -60,15 +63,12 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
 
             # channelling constraints
             for p in packs:
-                tstp_1 = time() - start_time
+                if time() - start_time >= 300:
+                    raise TimeoutException
 
                 solver.add(Implies(assignments[c][p], And(exactly_one([paths[c][p][e] for e in locs]), exactly_one([paths[c][s][p] for s in locs]))))
                 solver.add(Implies(assignments[c][p], Not(paths[c][p][p])))
                 solver.add(Implies(Not(assignments[c][p]), And([And(Not(paths[c][p][e]), Not(paths[c][e][p])) for e in locs])))
-
-                tstp_2 = time() - start_time
-                if (tstp_2 - tstp_1) * m * (n-p) > 300 - tstp_2:
-                    raise TimeoutException
 
         # assignment of the ordering variables for u
         for p1 in packs:
@@ -76,22 +76,28 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
             # each pack is delivered only once
             solver.add(exactly_one(u[p1]))
 
-            for c in cours:
-                # first packs delivered
-                solver.add(Implies(paths[c][n][p1], u[p1][0]))
+            # first packs delivered
+            solver.add([Implies(paths[c][n][p1], u[p1][0]) for c in cours if True == If(paths[c][n][p1], True, False)])
 
-                # following packs
+            # following packs
+            for c in cours:
                 for p2 in packs:
-                    if p1 != p2:
+                    if p1 != p2 and True == If(paths[c][p1][p2], True, False):
                         for o in packs[:-1]:
+
+                            if time() - start_time >= 300:
+                                raise TimeoutException
                             solver.add(Implies(And(paths[c][p1][p2], u[p1][o]), u[p2][o+1]))
 
         # MTZ formulation for subtour elimination
-        for p1 in packs:
-            for p2 in packs:
+        for p1 in packs:            
+            for p2 in packs:               
                 if p1 != p2:
-                    for o1 in packs:
+                    for o1 in packs:                
                         for o2 in packs:
+
+                            if time() - start_time >= 300:
+                                raise TimeoutException
                             solver.add(Implies(And(u[p1][o1], u[p2][o2]), 
                                                o1 - o2 + 1 <= (n-1) * (1-If(at_least_one([paths[c][p1][p2] for c in cours]), 1, 0))))
         
@@ -102,6 +108,8 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         if symm == True:
             for p1 in packs:
                 for p2 in packs:
+                    if time() - start_time >= 300:
+                        raise TimeoutException
 
                     # lexicographic ordering on the loads
                     if p1 != p2:
@@ -118,6 +126,8 @@ def MTZ_model(m, n, L, S, D, timeout, symm=False):
         solver.add(binary_to_integer(max_distance) == Max([Sum([If(paths[c][s][e], D[s][e], 0) for s in locs for e in locs if s != e]) for c in cours]))
 
         solver.add(binary_to_integer(max_distance) >= lower_bound)
+    
+
 
     except TimeoutException:
         

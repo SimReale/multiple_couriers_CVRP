@@ -1,5 +1,5 @@
 {
-    "mtz_base": {
+    "base": {
         "time": 0,
         "optimal": true,
         "obj": 12,
@@ -11,15 +11,15 @@
             ],
             [
                 3,
-                6
+                7
             ],
             [
-                7,
+                6,
                 1
             ]
         ]
     },
-    "mtz_symm": {
+    "symm": {
         "time": 1,
         "optimal": true,
         "obj": 12,
