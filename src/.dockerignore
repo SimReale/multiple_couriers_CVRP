@@ -4,9 +4,5 @@ LICENSE
 # Environments
 .venv
 
-# Results
-results
-../results
-
 # MacOs
 **/.DS_Store

@@ -8,11 +8,11 @@ To reproduce our results, ensure Docker is installed on your system. Once Docker
 
 - To build the docker
 ```
-docker build -t <docker_name> .
+docker build -t <docker_image_name> .
 ```
 - To run the docker
 ```
-docker run -t <docker_name> [--instances <instance(s)_name> --approach <approach> --solver_name <solver_name> --model_name <model_name> --timeout <timeout>]
+docker run -t <docker_image_name> [--instances <instance(s)_name> --approach <approach> --solver_name <solver_name> --model_name <model_name> --timeout <timeout>]
 ```
 
 ### Usage rules
@@ -50,7 +50,7 @@ AMPL_LICENSE="your_license"
 ### Example Usage:
 Run everything:
 ```
-docker run -t <docker_name>
+docker run -t <docker_image_name>
 ```
 
 Run two instances with a specific approach, using all the available solvers and models:
@@ -60,7 +60,7 @@ docker run -t <docker_name> --instances inst10,inst21 --approach MIP
 
 Run a specific instance settings with a specfic approach, solver, base and timeout:
 ```
-docker run -t <docker_name> --instances inst01 --approach MIP --solver_name gurobi --model_name base --timeout 300
+docker run -t <docker_image_name> --instances inst01 --approach MIP --solver_name gurobi --model_name base --timeout 300
 ```
 
 ## Authors
